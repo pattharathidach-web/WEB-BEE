@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานการตรวจสุขภาพ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- เพิ่ม Chart.js สำหรับวาดกราฟวงกลมตามภาพ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Sarabun', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0A2540] text-slate-300 flex flex-col justify-between p-4">
+        <div>
+            <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
+            <nav class="space-y-1">
+                <a href="/dashboard-nurse" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
+                <a href="/record-health" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="/history" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="/report" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">รายงานการตรวจสุขภาพ</h2>
+            
+            <!-- Date Filter Row -->
+            <div class="flex flex-wrap gap-4 items-end bg-slate-50 p-4 rounded-xl mb-6">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">ช่วงวันที่</label>
+                    <input type="date" value="2026-05-01" class="px-3 py-1.5 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">ถึงวันที่</label>
+                    <input type="date" value="2026-05-31" class="px-3 py-1.5 border rounded-lg text-sm">
+                </div>
+                <button class="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-emerald-700">ค้นหา</button>
+            </div>
+
+            <!-- Status Indicator Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="p-4 bg-slate-50 rounded-xl text-center">
+                    <p class="text-xs text-gray-400">ผู้เข้ารับการตรวจ</p>
+                    <p class="text-2xl font-bold text-gray-700">125 คน</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-xl text-center border border-green-100">
+                    <p class="text-xs text-green-600">🟢 ปกติ</p>
+                    <p class="text-2xl font-bold text-green-700">85 คน (68%)</p>
+                </div>
+                <div class="p-4 bg-yellow-50 rounded-xl text-center border border-yellow-100">
+                    <p class="text-xs text-yellow-600">🟡 เสี่ยง</p>
+                    <p class="text-2xl font-bold text-yellow-700">25 คน (20%)</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-xl text-center border border-red-100">
+                    <p class="text-xs text-red-600">🔴 ผิดปกติ</p>
+                    <p class="text-2xl font-bold text-red-700">15 คน (12%)</p>
+                </div>
+            </div>
+
+            <!-- Chart & Export Zone -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center border-t pt-6">
+                <div class="max-w-[250px] mx-auto">
+                    <canvas id="healthDonutChart"></canvas>
+                </div>
+                <div class="flex flex-col gap-3 md:items-end">
+                    <button class="w-full md:w-48 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-gray-700 rounded-xl text-sm font-medium">🖨️ พิมพ์รายงาน</button>
+                    <button class="w-full md:w-48 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-medium">📄 Export PDF</button>
+                    <button class="w-full md:w-48 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl text-sm font-medium">📊 Export Excel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script วาด Donut Chart -->
+    <script>
+        const ctx = document.getElementById('healthDonutChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['ปกติ', 'เสี่ยง', 'ผิดปกติ'],
+                datasets: [{
+                    data: [85, 25, 15],
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    </script>
+</body>
+</html>
