@@ -30,23 +30,47 @@
                 <label class="block text-sm text-gray-600 mb-1">Password</label>
                 <input type="password" id="password" placeholder="กรอกรหัสผ่าน" class="w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm" required>
             </div>
+            <p id="loginError" class="text-red-500 text-xs hidden">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition duration-200 shadow-md">เข้าสู่ระบบ</button>
         </form>
 
         <div class="text-center mt-4">
             <a href="#" class="text-xs text-blue-500 hover:underline">ลืมรหัสผ่าน?</a>
         </div>
+        <p class="text-center text-[11px] text-gray-400 mt-3">Demo: username <b>nurse</b> หรือ <b>employee</b> / รหัสผ่าน <b>1234</b></p>
     </div>
 
     <p class="text-xs text-gray-400 mt-8">© 2025 BST CSR | ตลาดสดใส ใส่ใจน้ำตาล</p>
 
+    <script src="auth.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // ถ้าล็อกอินอยู่แล้ว ไม่ต้องแสดงหน้านี้อีก
+        (function () {
+            const u = getUser();
+            if (u) window.location.href = u.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
+        })();
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const user = document.getElementById('username').value;
-            // จำลองการเปลี่ยนหน้าตาม Role ตัวอย่างในภาพ
-            if(user === 'nurse') window.location.href = '/dashboard-nurse';
-            else window.location.href = '/dashboard-emp';
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+
+            // Demo user directory (ของจริงต้องตรวจสอบกับ server + hash รหัสผ่าน)
+            const users = {
+                nurse:    { password: '1234', role: 'nurse',    roleLabel: 'พยาบาล',  fullname: 'พยาบาลสมหญิง ใจดี' },
+                employee: { password: '1234', role: 'employee', roleLabel: 'พนักงาน', fullname: 'นายสมชาย รักสุข' }
+            };
+
+            const match = users[username];
+            if (!match || match.password !== password) {
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+            setUser({ username, role: match.role, roleLabel: match.roleLabel, fullname: match.fullname });
+            window.location.href = match.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
         });
     </script>
 </body>

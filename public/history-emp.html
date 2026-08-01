@@ -18,19 +18,19 @@
                 <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
             </div>
             <nav class="space-y-1">
-                <a href="/dashboard-emp" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
-                <a href="/history-emp" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm">📊 ข้อมูลสุขภาพย้อนหลัง</a>
-                <a href="/csr-schedule" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📅 ตารางกิจกรรม CSR</a>
+                <a href="dashboard-emp.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
+                <a href="history-emp.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm">📊 ข้อมูลสุขภาพย้อนหลัง</a>
+                <a href="csr-schedule.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📅 ตารางกิจกรรม CSR</a>
             </nav>
         </div>
-        <a href="/logout" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
     </aside>
 
     <main class="flex-1 p-8">
         <div class="bg-white p-8 rounded-2xl shadow-sm border border-emerald-50">
             <div class="mb-6 border-b pb-4">
                 <h2 class="text-xl font-bold text-gray-800">ประวัติการตรวจสุขภาพของคุณ</h2>
-                <p class="text-sm text-gray-500 mt-1">นายสมชาย รักสุข</p>
+                <p class="text-sm text-gray-500 mt-1" data-user-fullname>-</p>
             </div>
 
             <div class="overflow-x-auto">
@@ -44,26 +44,40 @@
                             <th class="px-4 py-3 font-medium">น้ำตาลในเลือด</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-4">12/05/2567</td>
-                            <td class="px-4 py-4">65</td>
-                            <td class="px-4 py-4 text-emerald-600 font-medium">22.5</td>
-                            <td class="px-4 py-4">120/80</td>
-                            <td class="px-4 py-4">110</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-4">10/02/2567</td>
-                            <td class="px-4 py-4">64</td>
-                            <td class="px-4 py-4 text-emerald-600 font-medium">22.1</td>
-                            <td class="px-4 py-4">118/78</td>
-                            <td class="px-4 py-4">105</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="resultsBody" class="divide-y divide-gray-100"></tbody>
                 </table>
+                <p id="emptyState" class="text-center text-sm text-gray-400 py-8 hidden">ยังไม่มีข้อมูลการตรวจสุขภาพ</p>
             </div>
         </div>
     </main>
 
+    <script src="auth.js"></script>
+    <script src="data.js"></script>
+    <script>
+        const currentUser = requireAuth('employee');
+        if (currentUser) {
+            paintUser(currentUser);
+            const myRecords = getRecords().filter(r => r.fullname === currentUser.fullname);
+            const body = document.getElementById('resultsBody');
+            const empty = document.getElementById('emptyState');
+            if (myRecords.length === 0) {
+                empty.classList.remove('hidden');
+            } else {
+                myRecords
+                    .sort((a, b) => a.date.split('/').reverse().join('').localeCompare(b.date.split('/').reverse().join('')))
+                    .forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50';
+                        tr.innerHTML = `
+                            <td class="px-4 py-4">${r.date}</td>
+                            <td class="px-4 py-4">${r.weight}</td>
+                            <td class="px-4 py-4 text-emerald-600 font-medium">${r.bmi}</td>
+                            <td class="px-4 py-4">${r.bp}</td>
+                            <td class="px-4 py-4">${r.sugar}</td>`;
+                        body.appendChild(tr);
+                    });
+            }
+        }
+    </script>
 </body>
 </html>

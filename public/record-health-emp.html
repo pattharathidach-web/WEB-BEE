@@ -15,13 +15,13 @@
         <div>
             <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
             <nav class="space-y-1">
-                <a href="/dashboard-nurse" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
-                <a href="/record-health" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a href="/history" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="/report" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
+                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
             </nav>
         </div>
-        <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-red-400">🚪 ออกจากระบบ</a>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 text-red-400">🚪 ออกจากระบบ</a>
     </aside>
 
     <!-- Main Form Content -->
@@ -29,31 +29,34 @@
         <div class="max-w-3xl bg-white p-8 rounded-2xl shadow-sm mx-auto">
             <h2 class="text-xl font-bold text-gray-800 border-b pb-4 mb-6">บันทึกข้อมูลสุขภาพ (พยาบาล)</h2>
             
-            <form class="space-y-6">
+            <p id="formMsg" class="hidden mb-4 text-sm px-4 py-2 rounded-xl"></p>
+
+            <form id="healthForm" class="space-y-6">
                 <!-- Row 1: Search Patient -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
                         <label class="block text-sm text-gray-600 mb-1">ชื่อ-นามสกุล</label>
-                        <input type="text" placeholder="นายสมชาย รักสุข" class="w-full px-4 py-2 border rounded-xl bg-slate-50">
+                        <input type="text" id="fFullname" placeholder="นายสมชาย รักสุข" class="w-full px-4 py-2 border rounded-xl bg-slate-50" required>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">เลขบัตรประชาชน</label>
-                        <div class="flex gap-2">
-                            <input type="text" placeholder="1-2345-67890-12-3" class="w-full px-3 py-2 border rounded-xl text-sm">
-                            <button type="button" class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs whitespace-nowrap">🔍 ค้นหา</button>
-                        </div>
+                        <input type="text" id="fIdcard" placeholder="1-2345-67890-12-3" class="w-full px-3 py-2 border rounded-xl text-sm" required>
                     </div>
                 </div>
 
                 <!-- Row 2: Vitals -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">วันที่ตรวจ</label>
+                        <input type="date" id="fDate" class="w-full px-4 py-2 border rounded-xl" required>
+                    </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">น้ำหนัก (kg)</label>
-                        <input type="number" placeholder="65" class="w-full px-4 py-2 border rounded-xl">
+                        <input type="number" id="fWeight" placeholder="65" class="w-full px-4 py-2 border rounded-xl" required>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">ส่วนสูง (cm)</label>
-                        <input type="number" placeholder="170" class="w-full px-4 py-2 border rounded-xl">
+                        <input type="number" id="fHeight" placeholder="170" class="w-full px-4 py-2 border rounded-xl" required>
                     </div>
                 </div>
 
@@ -61,18 +64,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">ความดันโลหิต (mmHg)</label>
-                        <input type="text" placeholder="120 / 80" class="w-full px-4 py-2 border rounded-xl">
+                        <input type="text" id="fBp" placeholder="120/80" class="w-full px-4 py-2 border rounded-xl" required>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">น้ำตาลในเลือด (mg/dL)</label>
-                        <input type="number" placeholder="110" class="w-full px-4 py-2 border rounded-xl">
+                        <input type="number" id="fSugar" placeholder="110" class="w-full px-4 py-2 border rounded-xl" required>
                     </div>
                 </div>
 
                 <!-- Row 4: Note -->
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">หมายเหตุ</label>
-                    <textarea placeholder="กรอกหมายเหตุ (ถ้ามี)" rows="3" class="w-full px-4 py-2 border rounded-xl"></textarea>
+                    <textarea id="fNote" placeholder="กรอกหมายเหตุ (ถ้ามี)" rows="3" class="w-full px-4 py-2 border rounded-xl"></textarea>
                 </div>
 
                 <!-- Buttons -->
@@ -84,5 +87,35 @@
         </div>
     </main>
 
+    <script src="auth.js"></script>
+    <script src="data.js"></script>
+    <script>
+        requireAuth('nurse');
+        document.getElementById('fDate').valueAsDate = new Date();
+
+        document.getElementById('healthForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const weight = parseFloat(document.getElementById('fWeight').value);
+            const height = parseFloat(document.getElementById('fHeight').value);
+            const bmi = calcBmi(weight, height);
+            const [y, m, d] = document.getElementById('fDate').value.split('-');
+
+            addRecord({
+                fullname: document.getElementById('fFullname').value.trim(),
+                idcard: document.getElementById('fIdcard').value.trim(),
+                date: `${d}/${m}/${y}`,
+                weight, height, bmi,
+                bp: document.getElementById('fBp').value.trim(),
+                sugar: parseFloat(document.getElementById('fSugar').value),
+                note: document.getElementById('fNote').value.trim()
+            });
+
+            const msg = document.getElementById('formMsg');
+            msg.textContent = `บันทึกข้อมูลสำเร็จ (BMI คำนวณอัตโนมัติ = ${bmi})`;
+            msg.className = 'mb-4 text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100';
+            this.reset();
+            document.getElementById('fDate').valueAsDate = new Date();
+        });
+    </script>
 </body>
 </html>

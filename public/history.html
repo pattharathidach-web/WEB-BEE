@@ -17,13 +17,13 @@
                 <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
             </div>
             <nav class="space-y-1">
-                <a href="/dashboard-nurse" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
-                <a href="/record-health" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a href="/history" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm shadow-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="/report" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
+                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm shadow-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📊 รายงานการตรวจสุขภาพ</a>
             </nav>
         </div>
-        <a href="/logout" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-400 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-400 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
     </aside>
 
     <!-- Main Content -->
@@ -40,8 +40,8 @@
             <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 mb-8">
                 <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหาผู้ป่วย</label>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" placeholder="ชื่อ-นามสกุล หรือ เลขบัตรประชาชน" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-xl font-medium transition shadow-sm whitespace-nowrap">
+                    <input type="text" id="searchInput" placeholder="ชื่อ-นามสกุล หรือ เลขบัตรประชาชน" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <button id="searchBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-xl font-medium transition shadow-sm whitespace-nowrap">
                         ค้นหา
                     </button>
                 </div>
@@ -49,60 +49,73 @@
 
             <!-- History Table -->
             <div>
-                <h3 class="font-bold text-gray-700 mb-4">ประวัติการตรวจ (นายสมชาย รักสุข)</h3>
+                <h3 class="font-bold text-gray-700 mb-4" id="resultTitle">ประวัติการตรวจทั้งหมด</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
                         <thead class="text-xs text-gray-500 bg-slate-50 border-y">
                             <tr>
+                                <th class="px-4 py-3 font-medium">ชื่อ-นามสกุล</th>
                                 <th class="px-4 py-3 font-medium">วันที่</th>
                                 <th class="px-4 py-3 font-medium">น้ำหนัก (kg)</th>
                                 <th class="px-4 py-3 font-medium">BMI</th>
                                 <th class="px-4 py-3 font-medium">ความดันโลหิต</th>
                                 <th class="px-4 py-3 font-medium">น้ำตาล (mg/dL)</th>
-                                <th class="px-4 py-3 font-medium text-center">รายละเอียด</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <!-- Row 1 -->
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-4 text-gray-700">12/05/2567</td>
-                                <td class="px-4 py-4 text-gray-700">65</td>
-                                <td class="px-4 py-4 text-emerald-600 font-medium">22.5</td>
-                                <td class="px-4 py-4 text-gray-700">120/80</td>
-                                <td class="px-4 py-4 text-gray-700">110</td>
-                                <td class="px-4 py-4 text-center">
-                                    <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline">ดูรายละเอียด</a>
-                                </td>
-                            </tr>
-                            <!-- Row 2 -->
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-4 text-gray-700">10/02/2567</td>
-                                <td class="px-4 py-4 text-gray-700">64</td>
-                                <td class="px-4 py-4 text-emerald-600 font-medium">22.1</td>
-                                <td class="px-4 py-4 text-gray-700">118/78</td>
-                                <td class="px-4 py-4 text-gray-700">105</td>
-                                <td class="px-4 py-4 text-center">
-                                    <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline">ดูรายละเอียด</a>
-                                </td>
-                            </tr>
-                            <!-- Row 3 -->
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-4 text-gray-700">15/11/2566</td>
-                                <td class="px-4 py-4 text-gray-700">63</td>
-                                <td class="px-4 py-4 text-emerald-600 font-medium">21.8</td>
-                                <td class="px-4 py-4 text-gray-700">115/75</td>
-                                <td class="px-4 py-4 text-gray-700">98</td>
-                                <td class="px-4 py-4 text-center">
-                                    <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline">ดูรายละเอียด</a>
-                                </td>
-                            </tr>
+                        <tbody id="resultsBody" class="divide-y divide-gray-100">
                         </tbody>
                     </table>
+                    <p id="emptyState" class="text-center text-sm text-gray-400 py-8 hidden">ไม่พบข้อมูล</p>
                 </div>
             </div>
 
         </div>
     </main>
 
+    <script src="auth.js"></script>
+    <script src="data.js"></script>
+    <script>
+        requireAuth('nurse');
+
+        function renderRows(records) {
+            const body = document.getElementById('resultsBody');
+            const empty = document.getElementById('emptyState');
+            body.innerHTML = '';
+            if (records.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            records
+                .slice()
+                .sort((a, b) => a.date.split('/').reverse().join('').localeCompare(b.date.split('/').reverse().join('')))
+                .forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition';
+                    tr.innerHTML = `
+                        <td class="px-4 py-4 text-gray-700">${r.fullname}</td>
+                        <td class="px-4 py-4 text-gray-700">${r.date}</td>
+                        <td class="px-4 py-4 text-gray-700">${r.weight}</td>
+                        <td class="px-4 py-4 text-emerald-600 font-medium">${r.bmi}</td>
+                        <td class="px-4 py-4 text-gray-700">${r.bp}</td>
+                        <td class="px-4 py-4 text-gray-700">${r.sugar}</td>`;
+                    body.appendChild(tr);
+                });
+        }
+
+        function doSearch() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const all = getRecords();
+            const filtered = q
+                ? all.filter(r => r.fullname.toLowerCase().includes(q) || r.idcard.toLowerCase().includes(q))
+                : all;
+            document.getElementById('resultTitle').textContent = q ? `ผลการค้นหา: "${q}"` : 'ประวัติการตรวจทั้งหมด';
+            renderRows(filtered);
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', doSearch);
+        document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+        renderRows(getRecords());
+    </script>
 </body>
 </html>

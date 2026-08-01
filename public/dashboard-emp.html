@@ -18,14 +18,12 @@
                 <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
             </div>
             <nav class="space-y-1">
-                <a href="/dashboard-emp" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm"><span class="w-5">🏠</span> หน้าหลัก</a>
-                <a href="/record-health-emp" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">❤️</span> ข้อมูลสุขภาพ</a>
-                <a href="/csr-schedule" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">📅</span> ตารางกิจกรรม CSR</a>
-                <a href="/news" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">📰</span> ข่าวสาร</a>
-                <a href="/profile" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">👤</span> โปรไฟล์</a>
+                <a href="dashboard-emp.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm"><span class="w-5">🏠</span> หน้าหลัก</a>
+                <a href="history-emp.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">❤️</span> ข้อมูลสุขภาพ</a>
+                <a href="csr-schedule.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition"><span class="w-5">📅</span> ตารางกิจกรรม CSR</a>
             </nav>
         </div>
-        <a href="/logout" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition"><span>🚪</span> ออกจากระบบ</a>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition"><span>🚪</span> ออกจากระบบ</a>
     </aside>
 
     <!-- Main Content -->
@@ -34,12 +32,12 @@
         <header class="flex justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm border border-emerald-50">
             <div>
                 <p class="text-sm text-gray-500">ยินดีต้อนรับ</p>
-                <h1 class="text-2xl font-bold text-emerald-800">คุณสมชาย รักสุข</h1>
+                <h1 class="text-2xl font-bold text-emerald-800" data-user-fullname>คุณผู้ใช้งาน</h1>
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right hidden md:block">
-                    <p class="text-sm font-bold text-gray-700">สวัสดี, สมชาย รักสุข</p>
-                    <p class="text-xs text-gray-500">พนักงาน</p>
+                    <p class="text-sm font-bold text-gray-700" data-user-fullname>สวัสดี</p>
+                    <p class="text-xs text-gray-500" data-user-role>พนักงาน</p>
                 </div>
                 <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-xl shadow-inner">👨‍🔧</div>
             </div>
@@ -68,7 +66,7 @@
                         <p class="text-xs text-gray-400">ตรวจสุขภาพล่าสุด</p>
                         <p class="text-sm font-medium text-gray-600">12/05/2567</p>
                     </div>
-                    <a href="/history-emp" class="text-xs bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-200 transition font-medium inline-block">ดูทั้งหมด</a>
+                    <a href="history-emp.html" class="text-xs bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-200 transition font-medium inline-block">ดูทั้งหมด</a>
                 </div>
             </div>
 
@@ -83,31 +81,28 @@
                     <p class="text-xs text-gray-500 flex items-center gap-1"><span>📅</span> วันที่ 18 พ.ค. 2567</p>
                 </div>
                 <div class="flex justify-end relative z-10">
-                    <a href="/csr-schedule" class="text-xs bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition font-medium inline-block">ดูรายละเอียด</a>
+                    <a href="csr-schedule.html" class="text-xs bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition font-medium inline-block">ดูรายละเอียด</a>
                 </div>
             </div>
         </div>
 
         <!-- Quick Access Menu -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="/history-emp" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
+            <a href="history-emp.html" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-xl group-hover:bg-emerald-100 transition">📊</div>
                 <span class="text-sm text-gray-600 font-medium text-center">ข้อมูลสุขภาพ<br>ย้อนหลัง</span>
             </a>
-            <a href="/csr-schedule" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
+            <a href="csr-schedule.html" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-xl group-hover:bg-blue-100 transition">🗓️</div>
                 <span class="text-sm text-gray-600 font-medium text-center">ตารางกิจกรรม<br>CSR</span>
-            </a>
-            <a href="/news" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
-                <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 text-xl group-hover:bg-orange-100 transition">📢</div>
-                <span class="text-sm text-gray-600 font-medium text-center">ข่าวสาร<br>ประชาสัมพันธ์</span>
-            </a>
-            <a href="/health-guide" class="bg-white p-4 rounded-2xl shadow-sm border border-emerald-50 hover:shadow-md transition flex flex-col items-center justify-center gap-3 group">
-                <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 text-xl group-hover:bg-purple-100 transition">📖</div>
-                <span class="text-sm text-gray-600 font-medium text-center">คู่มือ<br>สุขภาพ</span>
             </a>
         </div>
     </main>
 
+    <script src="auth.js"></script>
+    <script>
+        const currentUser = requireAuth('employee');
+        if (currentUser) paintUser(currentUser);
+    </script>
 </body>
 </html>

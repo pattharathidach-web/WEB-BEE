@@ -17,12 +17,13 @@
         <div>
             <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
             <nav class="space-y-1">
-                <a href="/dashboard-nurse" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
-                <a href="/record-health" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a href="/history" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="/report" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
+                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
             </nav>
         </div>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 text-red-400">🚪 ออกจากระบบ</a>
     </aside>
 
     <main class="flex-1 p-8">
@@ -77,7 +78,9 @@
     </main>
 
     <!-- Script วาด Donut Chart -->
+    <script src="auth.js"></script>
     <script>
+        requireAuth('nurse');
         const ctx = document.getElementById('healthDonutChart').getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
