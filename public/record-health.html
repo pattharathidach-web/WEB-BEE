@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>บันทึกข้อมูลสุขภาพ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Sarabun', sans-serif; }</style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%92%9A</text></svg>">
     <link rel="stylesheet" href="style.css">
-    <noscript><style>html{visibility:visible!important}</style></noscript>
+    <noscript><style>html{visibility:visible!important;opacity:1!important}</style></noscript>
     <script src="auth.js"></script>
     <script>window.__user = guardPage('nurse');</script>
 </head>
-<body class="bg-slate-50 min-h-screen flex">
+<body class="bg-green-50/50 min-h-screen flex">
 
-    <!-- Sidebar (เหมือนกันเพื่อความเป็นเอกภาพ) -->
-    <aside class="w-64 bg-[#0A2540] text-slate-300 flex flex-col justify-between p-4">
+    <!-- Sidebar โทนเขียว -->
+    <aside class="w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4">
         <div>
             <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
             <nav class="space-y-1">
-                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🏠 หน้าหลัก</a>
-                <a aria-current="page" href="record-health.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">🏠 หน้าหลัก</a>
+                <a aria-current="page" href="record-health.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
             </nav>
         </div>
         <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 text-red-400">🚪 ออกจากระบบ</a>

@@ -7,9 +7,16 @@
   navigation: auto;
 }
 
-/* กันเนื้อหาแวบก่อน auth guard ตรวจสอบเสร็จ (คู่กับ guardPage() ใน auth.js) */
+/* กันเนื้อหาแวบก่อน auth guard ตรวจสอบเสร็จ (คู่กับ guardPage() ใน auth.js)
+   ใช้ opacity แทนการ toggle visibility แบบทันที เพื่อให้เข้าหน้าแบบ fade นุ่มๆ ไม่กระตุก */
 html {
   visibility: hidden;
+  opacity: 0;
+}
+html.ready {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.18s ease-out;
 }
 
 /* scrollbar บางเรียบ ให้ดูพรีเมียมขึ้น */

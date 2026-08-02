@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ประวัติข้อมูลสุขภาพ - ตลาดสดใส ใส่ใจน้ำตาล</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Sarabun', sans-serif; }</style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%92%9A</text></svg>">
     <link rel="stylesheet" href="style.css">
-    <noscript><style>html{visibility:visible!important}</style></noscript>
+    <noscript><style>html{visibility:visible!important;opacity:1!important}</style></noscript>
     <script src="auth.js"></script>
     <script>window.__user = guardPage('nurse');</script>
 </head>
-<body class="bg-slate-50 min-h-screen flex">
+<body class="bg-green-50/50 min-h-screen flex">
 
-    <!-- Sidebar โทนสีน้ำเงิน (เหมือนหน้าพยาบาล) -->
-    <aside class="w-64 bg-[#0A2540] text-slate-300 flex flex-col justify-between p-4">
+    <!-- Sidebar โทนเขียว -->
+    <aside class="w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4">
         <div>
             <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl">
                 <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
             </div>
             <nav class="space-y-1">
-                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
-                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a aria-current="page" href="history.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm shadow-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl text-sm transition">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">🏠 หน้าหลัก</a>
+                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a aria-current="page" href="history.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📊 รายงานการตรวจสุขภาพ</a>
             </nav>
         </div>
-        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-400 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
     </aside>
 
     <!-- Main Content -->
@@ -45,7 +45,7 @@
             <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 mb-8">
                 <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหาผู้ป่วย</label>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="searchInput" placeholder="ชื่อ-นามสกุล หรือ เลขบัตรประชาชน" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <input type="text" id="searchInput" placeholder="ชื่อ-นามสกุล หรือ เลขบัตรประชาชน" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                     <button id="searchBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-xl font-medium transition shadow-sm whitespace-nowrap">
                         ค้นหา
                     </button>

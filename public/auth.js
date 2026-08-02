@@ -65,7 +65,7 @@ function guardPage(requiredRole) {
     window.location.replace(user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
     return null;
   }
-  // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผล
-  document.documentElement.style.visibility = 'visible';
+  // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผลแบบ fade นุ่มๆ
+  document.documentElement.classList.add('ready');
   return user;
 }
