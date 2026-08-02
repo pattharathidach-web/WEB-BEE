@@ -7,10 +7,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Sarabun', sans-serif; }</style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%92%9A</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <noscript><style>html{visibility:visible!important}</style></noscript>
+    <script src="auth.js"></script>
+    <script>
+        (function () {
+            const u = getUser();
+            if (u) {
+                window.location.replace(u.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
+            } else {
+                document.documentElement.style.visibility = 'visible';
+            }
+        })();
+    </script>
 </head>
 <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen flex flex-col justify-between items-center p-6">
     
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 mt-12">
+    <div id="loginCard" class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 mt-12 transition-shadow hover:shadow-2xl">
         <!-- Logo -->
         <div class="flex justify-center items-center gap-4 mb-8">
             <div class="text-emerald-600 font-bold text-lg flex items-center gap-1">💚 ตลาดสดใส<br><span class="text-xs text-gray-500">ใส่ใจน้ำตาล</span></div>
@@ -42,19 +56,13 @@
 
     <p class="text-xs text-gray-400 mt-8">© 2025 BST CSR | ตลาดสดใส ใส่ใจน้ำตาล</p>
 
-    <script src="auth.js"></script>
     <script>
-        // ถ้าล็อกอินอยู่แล้ว ไม่ต้องแสดงหน้านี้อีก
-        (function () {
-            const u = getUser();
-            if (u) window.location.href = u.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
-        })();
-
         document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('loginError');
+            const submitBtn = this.querySelector('button[type="submit"]');
 
             // Demo user directory (ของจริงต้องตรวจสอบกับ server + hash รหัสผ่าน)
             const users = {
@@ -65,10 +73,16 @@
             const match = users[username];
             if (!match || match.password !== password) {
                 errorEl.classList.remove('hidden');
+                const card = document.getElementById('loginCard');
+                card.classList.remove('anim-shake');
+                void card.offsetWidth; // reflow เพื่อ restart animation
+                card.classList.add('anim-shake');
                 return;
             }
 
             errorEl.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> กำลังเข้าสู่ระบบ...';
             setUser({ username, role: match.role, roleLabel: match.roleLabel, fullname: match.fullname });
             window.location.href = match.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
         });

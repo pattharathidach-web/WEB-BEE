@@ -49,3 +49,23 @@ function logout() {
   clearUser();
   window.location.href = 'logout.html';
 }
+
+/**
+ * เรียกใน <head> ก่อน body จะ render เพื่อกัน "เนื้อหาแวบ" ก่อนโดน redirect
+ * ทำงานแบบ synchronous เพราะ localStorage เป็น sync API
+ * ต้องเรียกคู่กับ <html style="visibility:hidden"> แล้วค่อยเปิดทีหลังใน early-guard
+ */
+function guardPage(requiredRole) {
+  const user = getUser();
+  if (!user) {
+    window.location.replace('login.html');
+    return null;
+  }
+  if (requiredRole && user.role !== requiredRole) {
+    window.location.replace(user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
+    return null;
+  }
+  // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผล
+  document.documentElement.style.visibility = 'visible';
+  return user;
+}
