@@ -1,0 +1,68 @@
+/* style.css — ชั้นความประณีตที่ใช้ร่วมกันทุกหน้า */
+
+/* เปิดใช้ View Transition ของเบราว์เซอร์ (Chrome/Edge 111+)
+   ทำให้การคลิกเมนูเปลี่ยนหน้า "ครอส-เฟด" นุ่มๆ แทนการกระพริบเปลี่ยนทันที
+   เบราว์เซอร์ที่ไม่รองรับจะ fallback เป็นการโหลดหน้าปกติ ไม่กระทบการใช้งาน */
+@view-transition {
+  navigation: auto;
+}
+
+/* กันเนื้อหาแวบก่อน auth guard ตรวจสอบเสร็จ (คู่กับ guardPage() ใน auth.js) */
+html {
+  visibility: hidden;
+}
+
+/* scrollbar บางเรียบ ให้ดูพรีเมียมขึ้น */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* focus ring ที่เห็นชัดสำหรับ keyboard navigation (accessibility) */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* การ์ด/ปุ่ม เคลื่อนไหวนุ่มขึ้นนิดหน่อยตอน hover ให้รู้สึก interactive */
+.card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* animation สำหรับ toast/แจ้งเตือนสำเร็จ */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-slide-down {
+  animation: slideDown 0.25s ease-out;
+}
+
+/* shake animation สำหรับ error (เช่น login ผิด) */
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.anim-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* spinner เล็กๆ สำหรับปุ่มที่กำลังโหลด */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
