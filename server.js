@@ -262,7 +262,7 @@ app.get('/record-health', page('record-health.html'));
 app.get('/history', page('history.html'));
 app.get('/report', page('report.html'));
 app.get('/dashboard-emp', page('dashboard-emp.html'));
-app.get('/record-health-emp', page('record-health-emp.html'));
+app.get('/record-health-emp', page('record-health.html'));
 app.get('/history-emp', page('history-emp.html'));
 app.get('/csr-schedule', page('csr-schedule.html'));
 
@@ -303,7 +303,9 @@ app.get('/api/health-records', requireApiAuth(), async (req, res) => {
   }
 });
 
-app.post('/api/health-records', requireApiAuth('nurse'), async (req, res) => {
+app.post('/api/health-records', requireApiAuth('employee'), async (req, res) => {
+  req.body.fullname = req.user.fullname;
+  req.body.idcard = req.user.idcard;
   const { record, errors } = validateRecord(req.body);
   if (errors.length) return res.status(422).json({ success: false, message: errors[0], errors });
 

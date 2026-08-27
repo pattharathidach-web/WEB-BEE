@@ -11,19 +11,19 @@
     <link rel="stylesheet" href="style.css">
     <noscript><style>html{visibility:visible!important;opacity:1!important}</style></noscript>
     <script src="auth.js"></script>
-    <script>window.__user = guardPage('nurse');</script>
+    <script>window.__user = guardPage('employee');</script>
 </head>
 <body class="bg-green-50/50 min-h-screen flex">
 
     <!-- Sidebar โทนเขียว -->
     <aside class="w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4">
         <div>
-            <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
+            <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl"><span class="text-xl">💚</span><span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span></div>
             <nav class="space-y-1">
-                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">🏠 หน้าหลัก</a>
+                <a href="dashboard-emp.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">🏠 หน้าหลัก</a>
                 <a aria-current="page" href="record-health.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm">📝 บันทึกข้อมูลสุขภาพ</a>
-                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">🔍 ค้นหาประวัติผู้ป่วย</a>
-                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">📊 รายงานการตรวจสุขภาพ</a>
+                <a href="history-emp.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">📊 ข้อมูลสุขภาพย้อนหลัง</a>
+                <a href="csr-schedule.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm">📅 ตารางกิจกรรม CSR</a>
             </nav>
         </div>
         <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 text-red-400">🚪 ออกจากระบบ</a>
@@ -32,7 +32,7 @@
     <!-- Main Form Content -->
     <main class="flex-1 p-8">
         <div class="max-w-3xl bg-white p-8 rounded-2xl shadow-sm mx-auto">
-            <h2 class="text-xl font-bold text-gray-800 border-b pb-4 mb-6">บันทึกข้อมูลสุขภาพ (พยาบาล)</h2>
+            <h2 class="text-xl font-bold text-gray-800 border-b pb-4 mb-6">บันทึกข้อมูลสุขภาพของฉัน</h2>
             
             <p id="formMsg" class="hidden mb-4 text-sm px-4 py-2 rounded-xl"></p>
 
@@ -41,11 +41,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
                         <label class="block text-sm text-gray-600 mb-1">ชื่อ-นามสกุล</label>
-                        <input type="text" id="fFullname" placeholder="นายสมชาย รักสุข" class="w-full px-4 py-2 border rounded-xl bg-slate-50" required>
+                        <input type="text" id="fFullname" placeholder="นายสมชาย รักสุข" class="w-full px-4 py-2 border rounded-xl bg-slate-100 text-gray-500" required readonly>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">เลขบัตรประชาชน</label>
-                        <input type="text" id="fIdcard" placeholder="1-2345-67890-12-3" class="w-full px-3 py-2 border rounded-xl text-sm" required>
+                        <input type="text" id="fIdcard" placeholder="1-2345-67890-12-3" class="w-full px-3 py-2 border rounded-xl text-sm bg-slate-100 text-gray-500" required readonly>
                     </div>
                 </div>
 
@@ -94,6 +94,11 @@
 
     <script src="data.js"></script>
     <script>
+        const currentUser = window.__user;
+        if (currentUser) {
+            document.getElementById('fFullname').value = currentUser.fullname || '';
+            document.getElementById('fIdcard').value = currentUser.idcard || '';
+        }
         document.getElementById('fDate').valueAsDate = new Date();
 
         document.getElementById('healthForm').addEventListener('submit', async function (e) {
@@ -108,8 +113,6 @@
 
             try {
                 await addRecord({
-                    fullname: document.getElementById('fFullname').value.trim(),
-                    idcard: document.getElementById('fIdcard').value.trim(),
                     date: document.getElementById('fDate').value,
                     weight, height, bmi,
                     bp: document.getElementById('fBp').value.trim(),
@@ -120,6 +123,10 @@
                 msg.textContent = `บันทึกข้อมูลสำเร็จ (BMI คำนวณอัตโนมัติ = ${bmi})`;
                 msg.className = 'anim-slide-down mb-4 text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100';
                 this.reset();
+                if (currentUser) {
+                    document.getElementById('fFullname').value = currentUser.fullname || '';
+                    document.getElementById('fIdcard').value = currentUser.idcard || '';
+                }
                 document.getElementById('fDate').valueAsDate = new Date();
             } catch (error) {
                 msg.textContent = error.message;
