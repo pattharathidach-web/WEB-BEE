@@ -1,0 +1,536 @@
+# PROJECT OVERVIEW: ตลาดสดใส ใส่ใจน้ำตาล (BEE CSR)
+
+## 1) ข้อมูลทั่วไปของโปรเจกต์
+
+- ชื่อโปรเจกต์: ตลาดสดใส ใส่ใจน้ำตาล
+- ชื่อย่อ/โครงการ: BEE CSR
+- ประเภท: Web Application สำหรับจัดการข้อมูลสุขภาพและกิจกรรม CSR
+- ภาษาที่ใช้: HTML, CSS, JavaScript
+- Backend: Node.js + Express
+- Frontend: Static HTML pages + Tailwind CSS
+- Data Storage: localStorage (สำหรับ demo / mock database)
+- โหมดทำงานปัจจุบัน: Prototype / Demo / MVP
+
+## 2) วัตถุประสงค์ของโปรเจกต์
+
+โปรเจกต์นี้ออกแบบเพื่อช่วย:
+
+1. ให้พยาบาลสามารถบันทึกข้อมูลสุขภาพคนงาน/ประชาชนที่เข้ารับการตรวจ
+2. ให้พยาบาลค้นหาประวัติสุขภาพจากเลขบัตรประชาชนหรือชื่อผู้ป่วย
+3. ให้พยาบาลดูรายงานสรุปผลสุขภาพแบบกลุ่ม
+4. ให้พนักงานสามารถดูข้อมูลสุขภาพย้อนหลังของตนเอง
+5. ให้พนักงานสามารถดูตารางกิจกรรม CSR และข้อมูลที่เกี่ยวข้อง
+6. ทำให้การเข้าสู่ระบบแยกผู้ใช้งานตามบทบาท (nurse / employee)
+
+## 3) โครงสร้างโปรเจกต์
+
+โฟลเดอร์หลัก:
+
+- package.json
+- server.js
+- public/
+  - auth.js
+  - data.js
+  - login.html
+  - logout.html
+  - dashboard-nurse.html
+  - dashboard-emp.html
+  - record-health.html
+  - history.html
+  - report.html
+  - history-emp.html
+  - csr-schedule.html
+  - style.css
+  - tailwind.css
+  - tailwind.config.js
+
+## 4) รายละเอียดการทำงานของแต่ละไฟล์
+
+### 4.1 package.json
+ทำหน้าที่:
+- กำหนด package dependency ของโปรเจกต์
+- เปิดใช้งาน Express และ Node.js runtime
+- ใช้สำหรับติดตั้งและรันโปรเจกต์ด้วย npm install และ npm start
+
+สิ่งที่ควรจัดการใหม่/ลดภาระ:
+- ไม่ควรให้ package.json ทำงานมากเกินไป เพราะมันเป็นไฟล์ config อย่างเดียว
+- ถ้าจะเปิดใช้งานระบบจริง ควรแยก dependency สำหรับ backend, frontend, testing, lint ออกจากกันชัดเจน
+
+### 4.2 server.js
+ทำหน้าที่:
+- เป็น Backend หลักของโปรเจกต์
+- ทำหน้าที่ serve static files จาก public
+- จัดการ route หลักของหน้าเว็บ
+- ให้ route สำหรับ login mock
+- เป็นจุดรวมการเปิดหน้า dashboard และ endpoint ของระบบ
+
+Route สำคัญ:
+- /
+- /logout
+- /dashboard-nurse
+- /record-health
+- /history
+- /report
+- /dashboard-emp
+- /record-health-emp
+- /history-emp
+- /csr-schedule
+- /api/login
+
+สิ่งที่ควรจัดการใหม่/ลดภาระ:
+- แยก route ตาม domain เช่น auth routes, nurse routes, employee routes, health routes
+- อย่าผสม logic ของโครงสร้างหน้าเว็บ กับ logic ของ API/login/role การเข้าถึง ในไฟล์เดียวกัน
+- ควรย้าย logic จริง เช่น login, validation, permission ให้ไปอยู่ใน controller/service layer
+- สำหรับเวอร์ชันที่ทำจริง ควรตัดส่วน mock login ออกและใช้ database + JWT/session
+
+### 4.3 public/auth.js
+ทำหน้าที่:
+- จัดการ session ของผู้ใช้ใน frontend
+- อ่าน/เขียน localStorage
+- ตรวจสอบว่าผู้ใช้ล็อกอินแล้วหรือยัง
+- จำกัดสิทธิ์การเข้า page ตาม role
+- เติมข้อมูลชื่อและบทบาทลงในหน้า UI
+- จัดการ logout
+
+ฟังก์ชันสำคัญ:
+- getUser()
+- setUser(user)
+- clearUser()
+- requireAuth(requiredRole)
+- paintUser(user)
+- logout()
+- guardPage(requiredRole)
+
+สิ่งที่ควรจัดการใหม่/ลดภาระ:
+- ปรับให้ auth.js ทำแค่เรื่อง auth เท่านั้น ไม่รวม logic ของหน้า หรือ UI rendering
+- ในเวอร์ชันจริงควรใช้ session/JWT จาก backend แทน localStorage
+- ควรทำการตรวจสอบสิทธิ์บน server มากกว่าบน browser
+
+### 4.4 public/data.js
+ทำหน้าที่:
+- เป็น mock database ของข้อมูลสุขภาพที่เก็บใน localStorage
+- seed ข้อมูลตัวอย่างตอนเริ่มต้น
+- อ่านข้อมูลทั้งหมด
+- เพิ่มข้อมูลบันทึกใหม่
+- คำนวณ BMI
+- ให้ label ของสถานะ BMI
+
+ข้อมูลหลัก:
+- id
+- fullname
+- idcard
+- date
+- weight
+- height
+- bmi
+- bp
+- sugar
+- note
+
+สิ่งที่ควรจัดการใหม่/ลดภาระ:
+- แยกออกเป็น 3 ส่วน ได้แก่ data access, calculation logic, data seeding
+- ในเวอร์ชันจริงให้ย้ายไปเป็น API service ที่เรียกฐานข้อมูลแทน localStorage
+- ควรแยก function calcBmi และ bmiStatus ออกจาก storage logic เพื่อให้สามารถ reuse ได้
+
+## 5) ภาพรวมว่าแต่ละไฟล์ “ทำอะไร” และ “ควรลดงานอะไร”
+
+### public/login.html
+ทำอะไร:
+- หน้าล็อกอินหลัก
+- ตรวจสอบ username/password แบบ demo
+- redirect ไป dashboard ตาม role
+- แสดง modal ลืมรหัสผ่าน
+
+จัดการใหม่/ลดภาระ:
+- ตัด logic การ login ออกไปเป็นไฟล์ auth หรือ API module
+- แยก UI และ business logic ให้ชัดเจน
+- ใช้ form validation แทน code ที่เขียนรวมกันใน event listener
+
+### public/dashboard-nurse.html
+ทำอะไร:
+- หน้าหลักของพยาบาล
+- แสดงสถิติจำนวนบันทึกและผู้ป่วย
+- ให้ shortcut ไปหน้า record-health, history, report
+
+จัดการใหม่/ลดภาระ:
+- ไม่ควรเขียน logic คำนวณสถิติรวมกันในไฟล์ HTML
+- ควรแยกเป็น dashboard.js หรือ service layer
+- ให้มี component สำหรับ cards/statistics แบบ reusable
+
+### public/dashboard-emp.html
+ทำอะไร:
+- หน้าหลักของพนักงาน
+- แสดงข้อมูลสุขภาพล่าสุดและกิจกรรม CSR ล่าสุด
+
+จัดการใหม่/ลดภาระ:
+- ควรแยกส่วนข้อมูลสุขภาพและ CSR ออกจาก HTML ให้เป็น data module
+- ลดการ hardcode ข้อมูลให้เหลือน้อยลง
+
+### public/record-health.html
+ทำอะไร:
+- ฟอร์มบันทึกข้อมูลสุขภาพสำหรับพยาบาล
+- นำข้อมูลมาคำนวณ BMI และบันทึกลง localStorage
+
+จัดการใหม่/ลดภาระ:
+- แยกฟอร์ม validation, คำนวณ BMI, submit logic เป็นส่วนแยก
+- เพิ่มการ validate field ที่ชัดเจน เช่น น้ำหนัก/ส่วนสูง/ความดัน/น้ำตาล
+
+### public/history.html
+ทำอะไร:
+- ค้นหาประวัติผู้ป่วย
+- แสดงตาราง records ลงบนหน้า
+- filter ตามชื่อหรือ idcard
+
+จัดการใหม่/ลดภาระ:
+- แยก renderTable, search, sort logic ออกจาก HTML
+- เพิ่ม pagination และ loading state
+
+### public/report.html
+ทำอะไร:
+- แสดงสรุปข้อมูลสุขภาพแบบสถิติ
+- ใช้ Chart.js แสดง doughnut chart
+- มีกลุ่มปุ่ม export/print
+
+จัดการใหม่/ลดภาระ:
+- ตัวเลขสรุปควรคำนวณจากข้อมูลจริง ไม่ hardcode
+- แยก chart config ออกจาก HTML
+- ทำ report logic เป็น module เพื่อใช้ได้กับหลายหน้า
+
+### public/history-emp.html
+ทำอะไร:
+- หน้าแสดงประวัติสุขภาพย้อนหลังของพนักงาน
+
+จัดการใหม่/ลดภาระ:
+- ควรใช้ logic ร่วมกับ history.html เพื่อหลีกเลี่ยงการ copy code ซ้ำ
+- แยกสร้าง component หรือ shared view module
+
+### public/csr-schedule.html
+ทำอะไร:
+- หน้าตารางกิจกรรม CSR
+- แสดงข้อมูลกิจกรรมที่เกี่ยวข้องกับพนักงาน
+
+จัดการใหม่/ลดภาระ:
+- ควรแยกข้อมูลกิจกรรมออกจาก HTML เป็น JSON/data file
+- ปรับให้มีโครงสร้างรายการแบบ reusable
+
+### public/logout.html
+ทำอะไร:
+- หน้าแสดงหลังออกจากระบบ
+- เป็นผังบอกให้กลับเข้าสู่ระบบ
+
+จัดการใหม่/ลดภาระ:
+- เป็นหน้าเล็กมาก ควรอยู่ในโครงสร้าง auth flow ที่ชัดเจนเท่านั้น
+- ไม่ควรมีกระบวนการพิเศษมากเกินไป
+
+### public/style.css และ public/tailwind.css
+ทำอะไร:
+- รวบรวม CSS สำหรับจัดรูปแบบ UI และ animation
+- Tailwind.css เป็นสไตล์ framework/base
+- style.css เป็น custom styling ที่ไม่ใช่ Tailwind
+
+จัดการใหม่/ลดภาระ:
+- ควรแยก CSS ตามหน้า/ส่วนประกอบ เช่น auth.css, dashboard.css, form.css
+- ลดการเขียน style ซ้ำซ้อนกัน
+
+### public/tailwind.config.js
+ทำอะไร:
+- กำหนด theme และ config ของ Tailwind
+
+จัดการใหม่/ลดภาระ:
+- ไม่จำเป็นต้องย้ายไปไหนมากนัก แต่ควรจัดโครงสร้าง config ให้ชัดเจนหากเพิ่มธีมมากขึ้น
+
+## 6) ข้อสรุปเรื่องการจัดการใหม่ให้เล็กลง
+
+ถ้าจะให้โปรเจกต์มีโครงสร้างที่ดีและเอาไปพัฒนาต่อได้จริง ควรจัดการให้แต่ละไฟล์มีหน้าที่ชัดเจน เช่น:
+
+- server.js -> routing + backend bootstrapping only
+- auth.js -> auth/session logic only
+- data.js -> data access only
+- login.html -> login UI only
+- dashboard-nurse.html -> nurse dashboard UI only
+- dashboard-emp.html -> employee dashboard UI only
+- record-health.html -> health form UI only
+- history.html -> history list UI only
+- report.html -> report/chart UI only
+- csr-schedule.html -> CSR UI only
+
+หมายเหตุสำคัญ:
+- ขณะนี้โปรเจกต์ยังเป็น demo และหลายไฟล์มีโทนความรับผิดชอบรวมกันในหน้าเดียวมากเกินไป
+- การลดภาระแต่ละไฟล์ลงจะช่วยให้ AI หรือทีมพัฒนาแก้ไขในอนาคตง่ายขึ้น และลดความเสี่ยงจากการแก้ไขข้ามส่วนได้
+
+## 7) คำแนะนำสำหรับ AI ให้แก้ไขต่อ
+
+ให้ AI ทำงานในลำดับต่อไปนี้:
+
+1. แยก logic auth ออกจาก frontend
+2. แยก storage logic ออกจาก UI
+3. ทำ API จริงสำหรับ login และ health records
+4. เปลี่ยน localStorage เป็น database
+5. ทำ report จากข้อมูลจริง
+6. ทำภาพรวมโครงสร้างให้มี feature modules ที่ชัดเจน
+7. ลดการ hardcode และ duplication อย่างจริงจัง
+
+---
+
+End of overview
+
+## 5) หน้าจอหลักและบทบาทผู้ใช้งาน
+
+### 5.1 login.html
+หน้าล็อกอินหลัก
+
+#### คุณสมบัติ:
+- กรอก username และ password
+- มี demo account:
+  - nurse / 1234
+  - employee / 1234
+- ถ้าข้อมูลถูกต้อง ให้ redirect ไป dashboard ตาม role
+- มี modal "ลืมรหัสผ่าน"
+- มี animation error เมื่อ login ผิดพลาด
+
+#### ปัญหาทางออกแบบ:
+- login ไม่มีความปลอดภัยจริง
+- username/password hardcoded ไว้ใน frontend
+- ไม่มีการเชื่อม backend จริง
+
+### 5.2 dashboard-nurse.html
+หน้าหลักของพยาบาล
+
+#### การทำงาน:
+- ตรวจสิทธิ์ด้วย guardPage('nurse')
+- แสดง sidebar สำหรับพยาบาล
+- แสดงสถิติสำคัญ:
+  - จำนวนบันทึกสุขภาพทั้งหมด
+  - ผู้ป่วยที่มีข้อมูลในระบบ
+  - บันทึกล่าสุด
+- มี shortcut สำหรับ:
+  - บันทึกข้อมูลสุขภาพ
+  - ค้นหาประวัติผู้ป่วย
+  - รายงานการตรวจสุขภาพ
+
+### 5.3 dashboard-emp.html
+หน้าหลักของพนักงาน
+
+#### การทำงาน:
+- ตรวจสิทธิ์ด้วย guardPage('employee')
+- แสดง sidebar สำหรับพนักงาน
+- แสดงข้อมูลสุขภาพล่าสุด
+- แสดงกิจกรรม CSR ล่าสุด
+- มี shortcut สำหรับ:
+  - ข้อมูลสุขภาพย้อนหลัง
+  - ตารางกิจกรรม CSR
+
+### 5.4 record-health.html
+หน้าบันทึกข้อมูลสุขภาพสำหรับพยาบาล
+
+#### ฟอร์มหลัก:
+- ชื่อ-นามสกุล
+- เลขบัตรประชาชน
+- วันที่ตรวจ
+- น้ำหนัก
+- ส่วนสูง
+- ความดันโลหิต
+- น้ำตาลในเลือด
+- หมายเหตุ
+
+#### การทำงาน:
+- เมื่อ submit จะคำนวณ BMI อัตโนมัติ
+- บันทึกลง localStorage
+- แสดงข้อความสำเร็จ
+- ล้างฟอร์มหลังบันทึก
+
+### 5.5 history.html
+หน้าค้นหาประวัติสุขภาพของพยาบาล
+
+#### การทำงาน:
+- ค้นหาจากชื่อหรือเลขบัตรประชาชน
+- แสดงตารางผลลัพธ์
+- จัดเรียงตามวันจากเก่าถึงใหม่ หรือ ใหม่ถึงเก่า ตาม logic ที่เขียน
+- หากไม่มีข้อมูลจะแสดง empty state
+
+### 5.6 report.html
+หน้ารายงานสรุปสุขภาพ
+
+#### การทำงาน:
+- มีตัวกรองวันที่แบบ static
+- แสดงสถิติต่าง ๆ เช่น
+  - ผู้เข้ารับการตรวจ
+  - ปกติ
+  - เสี่ยง
+  - ผิดปกติ
+- ใช้ Chart.js วาด doughnut chart
+- มีปุ่มพิมพ์ / Export PDF / Export Excel (เอาไว้แสดง UI เท่านั้น ยังไม่ทำ functional จริง)
+
+### 5.7 history-emp.html
+หน้าข้อมูลสุขภาพย้อนหลังของพนักงาน
+
+- คล้ายกับ history.html แต่ถูกออกแบบให้ผู้ใช้เป็นพนักงาน
+- อาจมีการแสดงประวัติทางสุขภาพของตนเองเป็นหลัก
+
+### 5.8 csr-schedule.html
+หน้าตารางกิจกรรม CSR
+
+- แสดงข้อมูลกะ / กิจกรรม CSR
+- ใช้โทนสีเขียวตาม UI ของพนักงาน
+- เหมาะสำหรับการประชาสัมพันธ์ของกิจกรรมด้านสุขภาพและ CSR
+
+### 5.9 logout.html
+หน้าแสดงหลังออกจากระบบ
+
+- ให้ปุ่มกลับเข้าสู่ระบบ
+- ใช้ UI แบบสั้น ๆ
+
+## 6) Flow การใช้งานระบบ
+
+### 6.1 Flow ของพยาบาล
+1. เข้าหน้า login
+2. กรอก username = nurse และ password = 1234
+3. ระบบเก็บ user object ลง localStorage
+4. Redirect ไป dashboard-nurse.html
+5. พยาบาลคลิก “บันทึกข้อมูลสุขภาพ”
+6. กรอกข้อมูลสุขภาพผู้ป่วย
+7. ระบบคำนวณ BMI และบันทึกลง localStorage
+8. สามารถไปหน้า history.html เพื่อค้นหาประวัติ
+9. สามารถเข้า report.html เพื่อดูสรุปผล
+
+### 6.2 Flow ของพนักงาน
+1. เข้าหน้า login
+2. กรอก username = employee และ password = 1234
+3. ระบบเก็บ user role เป็น employee
+4. Redirect ไป dashboard-emp.html
+5. ดูข้อมูลสุขภาพล่าสุด
+6. ดู CSR schedule
+7. ดูประวัติสุขภาพย้อนหลัง
+
+## 7) ข้อมูลที่ถูกเก็บในระบบ (Demo Data)
+
+ข้อมูลตัวอย่างมีการ seed ไว้ใน localStorage เช่น:
+
+- fullname: นายสมชาย รักสุข
+- idcard: 1-2345-67890-12-3
+- date: 15/11/2566
+- weight: 63
+- height: 170
+- bmi: 21.8
+- bp: 115/75
+- sugar: 98
+- note: ""
+
+ข้อมูลนี้ถูกใช้เพื่อให้หน้า history / dashboard แสดงผลทันทีโดยไม่ต้องมี backend จริง
+
+## 8) Business Logic ที่สำคัญ
+
+### 8.1 BMI Calculation
+สูตร:
+
+BMI = weight / (height in meter)^2
+
+- ถ้า BMI < 18.5 => น้ำหนักน้อย
+- ถ้า BMI < 23 => ปกติ
+- ถ้า BMI < 25 => ท้วม
+- ถ้า BMI >= 25 => อ้วน
+
+### 8.2 Role-based Access
+- nurse สามารถเข้าไฟล์ nurse-only
+- employee สามารถเข้าไฟล์ employee-only
+- ถ้า login ผิด role แต่เข้า page ที่ไม่ตรง จะ redirect ไป dashboard ของตัวเอง
+
+### 8.3 Search Logic
+- ค้นหาจากชื่อ-นามสกุล หรือเลขบัตรประชาชน
+- case insensitive
+- ใช้ filter ด้วย includes()
+
+## 9) จุดเด่นของโปรเจกต์
+
+- UI ใช้ Tailwind CSS ทำให้สวยและออกแบบเร็ว
+- ใช้โทนสีที่ชัดเจนแยก role
+- มี dashboard สำหรับทั้งพยาบาลและพนักงาน
+- มีการจำลองข้อมูลและการทำงานของโปรแกรมแบบ MVP
+- ทำงานได้ทันทีโดยไม่ต้องตั้ง database
+
+## 10) จุดอ่อน / ข้อจำกัดที่ควรแก้ไขในเวอร์ชันต่อไป
+
+1. ระบบ Authentication ไม่ปลอดภัย
+   - ใช้ localStorage เป็น session
+   - ไม่มี password hashing
+   - ไม่มี backend auth จริง
+
+2. ไม่มี Database จริง
+   - ข้อมูลทั้งหมดอยู่ใน browser
+   - เสี่ยงต่อการสูญหายเมื่อ browser cache reset
+
+3. ไม่มี API CRUD จริง
+   - บันทึก/ค้นหา/รายงาน ใช้ localStorage แบบ client-side
+
+4. route บางหน้าเป็น mock page
+   - /news, /profile, /health-guide เป็น static HTML แบบยังไม่สมบูรณ์
+
+5. ไม่มี validation ที่ละเอียดพอ
+   - เช่น เลขบัตรประชาชน, วันเดือนปี, น้ำหนัก หรือส่วนสูงมีค่าไม่ถูกต้อง
+
+6. report.html เป็น demo static
+   - ตัวเลขรายงาน hardcode ไว้ ไม่ถูกคำนวณจากข้อมูลจริง
+
+7. ไม่มี logout flow ที่อาจล้าง tokens หรือ server session จริง
+
+## 11) สรุปภาพรวมโปรเจกต์แบบสั้น ๆ
+
+โปรเจกต์นี้เป็นระบบ Demo Web App สำหรับจัดการสุขภาพในตลาดสดแบบ CSR โดยมีการแยกบทบาทเป็น:
+
+- พยาบาล: บันทึกสุขภาพ, ค้นหาประวัติ, ดูรายงาน
+- พนักงาน: ดูประวัติสุขภาพและข้อมูล CSR
+
+ระบบใช้ Node.js + Express สำหรับ serving pages และใช้ localStorage เป็น source ของข้อมูลใน demo mode เพื่อให้โปรเจกต์ใช้งานง่ายและเห็นภาพได้เร็ว โดยมี UI ที่สวยและโครงสร้างแยกหน้าชัดเจน
+
+## 12) คำสั่งให้ AI ดำเนินการต่อ
+
+หากต้องการให้ AI แก้ไขหรือพัฒนาต่อ ให้ใช้คำแนะนำดังนี้:
+
+- ปรับระบบ login ให้ใช้อินเตอร์เฟซจริงและมี JWT/session ที่ปลอดภัย
+- เปลี่ยน localStorage เป็น database เช่น MongoDB/PostgreSQL/MySQL
+- สร้าง API สำหรับ login, create record, search record, report summary
+- เพิ่ม validation สำหรับข้อมูลผู้ป่วย
+- ทำ report.html ให้คำนวณจากฐานข้อมูลจริง
+- ปรับหน้า history เช่น เพิ่ม pagination, filter by date
+- ปรับ UI ให้ responsive และใช้งานง่ายยิ่งขึ้น
+- เพิ่มการจัดการ error หรือตัวแสดงสถานะผิดพลาด
+
+## 13) ข้อสั่งเงื่อนไขสำหรับการปรับปรุงต่อ
+
+- โปรแกรมนี้เป็น demo ปัจจุบัน nênต้องไม่ใช้ localStorage เป็นฐานข้อมูลจริงใน production
+- หากจะปรับเป็นระบบจริง ให้ย้ายข้อมูลไปอยู่บน backend และค่อยเพิ่ม auth/session
+- ควรแยก frontend/backend อย่างชัดเจน
+- ควรสร้าง API layer สำหรับทุกการบันทึกและค้นหา
+- หากต้องการให้อยู่ในผลิตภัณฑ์จริง ควรเพิ่ม:
+  - ระบบลงทะเบียนผู้ใช้
+  - ระบบจัดการสิทธิ์ระดับ admin/nurse/employee
+  - ระบบตรวจสอบสิทธิ์ตามตัวแปร role
+  - ระบบบันทึก logs
+  - ระบบ export CSV/PDF ที่ใช้งานจริง
+
+## 14) ไฟล์ที่ควรอ่านก่อนเริ่มแก้ไข
+
+- server.js
+- public/auth.js
+- public/data.js
+- public/login.html
+- public/dashboard-nurse.html
+- public/dashboard-emp.html
+- public/record-health.html
+- public/history.html
+- public/report.html
+
+## 15) ข้อเสนอแนะเรื่องการแก้ไขต่อเนื่อง
+
+ถ้าจะให้ AI หรือทีมพัฒนาแก้ไขต่อ ให้เริ่มจาก:
+
+1. แยก logic auth ออกจาก frontend
+2. เพิ่ม backend API จริง
+3. เปลี่ยน localStorage เป็น database
+4. ทำ report ดึงข้อมูลจาก backend
+5. ปรับ UI ให้มีความสอดคล้องและไม่หักผสานระหว่างหน้า
+6. ปรับความปลอดภัยก่อน launch จริง
+
+---
+
+End of overview
