@@ -61,26 +61,31 @@
         const currentUser = window.__user;
         if (currentUser) {
             paintUser(currentUser);
-            const myRecords = getRecords().filter(r => r.fullname === currentUser.fullname);
-            const body = document.getElementById('resultsBody');
-            const empty = document.getElementById('emptyState');
-            if (myRecords.length === 0) {
-                empty.classList.remove('hidden');
-            } else {
-                myRecords
-                    .sort((a, b) => a.date.split('/').reverse().join('').localeCompare(b.date.split('/').reverse().join('')))
-                    .forEach(r => {
+            (async function () {
+                const body = document.getElementById('resultsBody');
+                const empty = document.getElementById('emptyState');
+                try {
+                    const myRecords = await getRecords();
+                    if (myRecords.length === 0) {
+                        empty.classList.remove('hidden');
+                        return;
+                    }
+                    sortByDateAsc(myRecords).forEach(r => {
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-slate-50';
-                        tr.innerHTML = `
-                            <td class="px-4 py-4">${r.date}</td>
-                            <td class="px-4 py-4">${r.weight}</td>
-                            <td class="px-4 py-4 text-emerald-600 font-medium">${r.bmi}</td>
-                            <td class="px-4 py-4">${r.bp}</td>
-                            <td class="px-4 py-4">${r.sugar}</td>`;
+                        [formatThaiDate(r.date), r.weight, r.bmi, r.bp, r.sugar].forEach((value, index) => {
+                            const td = document.createElement('td');
+                            td.className = index === 2 ? 'px-4 py-4 text-emerald-600 font-medium' : 'px-4 py-4';
+                            td.textContent = value;
+                            tr.appendChild(td);
+                        });
                         body.appendChild(tr);
                     });
-            }
+                } catch (error) {
+                    empty.textContent = error.message;
+                    empty.classList.remove('hidden');
+                }
+            })();
         }
     </script>
 </body>

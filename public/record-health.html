@@ -96,32 +96,38 @@
     <script>
         document.getElementById('fDate').valueAsDate = new Date();
 
-        document.getElementById('healthForm').addEventListener('submit', function (e) {
+        document.getElementById('healthForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
             const weight = parseFloat(document.getElementById('fWeight').value);
             const height = parseFloat(document.getElementById('fHeight').value);
             const bmi = calcBmi(weight, height);
-            const [y, m, d] = document.getElementById('fDate').value.split('-');
-
-            addRecord({
-                fullname: document.getElementById('fFullname').value.trim(),
-                idcard: document.getElementById('fIdcard').value.trim(),
-                date: `${d}/${m}/${y}`,
-                weight, height, bmi,
-                bp: document.getElementById('fBp').value.trim(),
-                sugar: parseFloat(document.getElementById('fSugar').value),
-                note: document.getElementById('fNote').value.trim()
-            });
-
             const msg = document.getElementById('formMsg');
-            msg.textContent = `บันทึกข้อมูลสำเร็จ (BMI คำนวณอัตโนมัติ = ${bmi})`;
-            msg.className = 'anim-slide-down mb-4 text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100';
-            this.reset();
-            document.getElementById('fDate').valueAsDate = new Date();
-
             submitBtn.disabled = true;
-            setTimeout(() => { submitBtn.disabled = false; }, 400);
+            submitBtn.textContent = 'กำลังบันทึก...';
+
+            try {
+                await addRecord({
+                    fullname: document.getElementById('fFullname').value.trim(),
+                    idcard: document.getElementById('fIdcard').value.trim(),
+                    date: document.getElementById('fDate').value,
+                    weight, height, bmi,
+                    bp: document.getElementById('fBp').value.trim(),
+                    sugar: parseFloat(document.getElementById('fSugar').value),
+                    note: document.getElementById('fNote').value.trim()
+                });
+
+                msg.textContent = `บันทึกข้อมูลสำเร็จ (BMI คำนวณอัตโนมัติ = ${bmi})`;
+                msg.className = 'anim-slide-down mb-4 text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100';
+                this.reset();
+                document.getElementById('fDate').valueAsDate = new Date();
+            } catch (error) {
+                msg.textContent = error.message;
+                msg.className = 'anim-slide-down mb-4 text-sm px-4 py-2 rounded-xl bg-red-50 text-red-700 border border-red-100';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'บันทึกข้อมูล';
+            }
         });
     </script>
 </body>

@@ -76,34 +76,40 @@
         document.getElementById('forgotCloseBtn').addEventListener('click', () => forgotModal.classList.add('hidden'));
         forgotModal.addEventListener('click', (e) => { if (e.target === forgotModal) forgotModal.classList.add('hidden'); });
 
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('loginError');
             const submitBtn = this.querySelector('button[type="submit"]');
-
-            // Demo user directory (ของจริงต้องตรวจสอบกับ server + hash รหัสผ่าน)
-            const users = {
-                nurse:    { password: '1234', role: 'nurse',    roleLabel: 'พยาบาล',  fullname: 'พยาบาลสมหญิง ใจดี' },
-                employee: { password: '1234', role: 'employee', roleLabel: 'พนักงาน', fullname: 'นายสมชาย รักสุข' }
-            };
-
-            const match = users[username];
-            if (!match || match.password !== password) {
-                errorEl.classList.remove('hidden');
-                const card = document.getElementById('loginCard');
-                card.classList.remove('anim-shake');
-                void card.offsetWidth; // reflow เพื่อ restart animation
-                card.classList.add('anim-shake');
-                return;
-            }
+            const originalText = submitBtn.innerHTML;
 
             errorEl.classList.add('hidden');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> กำลังเข้าสู่ระบบ...';
-            setUser({ username, role: match.role, roleLabel: match.roleLabel, fullname: match.fullname });
-            window.location.href = match.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+
+                setUser(data.user);
+                setToken(data.token);
+                window.location.href = data.redirect;
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+                const card = document.getElementById('loginCard');
+                card.classList.remove('anim-shake');
+                void card.offsetWidth;
+                card.classList.add('anim-shake');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         });
     </script>
 </body>

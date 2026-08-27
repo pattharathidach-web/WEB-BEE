@@ -59,17 +59,17 @@
                 <div class="grid grid-cols-2 gap-4 mb-4 relative z-10">
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <p class="text-xs text-gray-500 mb-1">น้ำหนัก</p>
-                        <p class="text-xl font-bold text-emerald-700">65 <span class="text-sm font-normal text-gray-500">kg</span></p>
+                        <p class="text-xl font-bold text-emerald-700"><span id="latestWeight">-</span> <span class="text-sm font-normal text-gray-500">kg</span></p>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <p class="text-xs text-gray-500 mb-1">ดัชนีมวลกาย (BMI)</p>
-                        <p class="text-xl font-bold text-emerald-700">22.5</p>
+                        <p class="text-xl font-bold text-emerald-700" id="latestBmi">-</p>
                     </div>
                 </div>
                 <div class="flex justify-between items-end relative z-10">
                     <div>
                         <p class="text-xs text-gray-400">ตรวจสุขภาพล่าสุด</p>
-                        <p class="text-sm font-medium text-gray-600">12/05/2567</p>
+                        <p class="text-sm font-medium text-gray-600" id="latestDate">-</p>
                     </div>
                     <a href="history-emp.html" class="text-xs bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-200 transition font-medium inline-block">ดูทั้งหมด</a>
                 </div>
@@ -104,9 +104,23 @@
         </div>
     </main>
 
+    <script src="data.js"></script>
     <script>
-        const currentUser = window.__user;
-        if (currentUser) paintUser(currentUser);
+        (async function () {
+            const currentUser = window.__user;
+            if (!currentUser) return;
+            paintUser(currentUser);
+            try {
+                const records = await getRecords();
+                const latest = records[records.length - 1];
+                if (!latest) return;
+                document.getElementById('latestWeight').textContent = latest.weight;
+                document.getElementById('latestBmi').textContent = latest.bmi;
+                document.getElementById('latestDate').textContent = formatThaiDate(latest.date);
+            } catch (error) {
+                document.getElementById('latestDate').textContent = 'โหลดข้อมูลไม่ได้';
+            }
+        })();
     </script>
 </body>
 </html>

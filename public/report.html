@@ -39,32 +39,32 @@
             <div class="flex flex-wrap gap-4 items-end bg-slate-50 p-4 rounded-xl mb-6">
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">ช่วงวันที่</label>
-                    <input type="date" value="2026-05-01" class="px-3 py-1.5 border rounded-lg text-sm">
+                    <input type="date" id="fromDate" class="px-3 py-1.5 border rounded-lg text-sm">
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">ถึงวันที่</label>
-                    <input type="date" value="2026-05-31" class="px-3 py-1.5 border rounded-lg text-sm">
+                    <input type="date" id="toDate" class="px-3 py-1.5 border rounded-lg text-sm">
                 </div>
-                <button class="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-emerald-700">ค้นหา</button>
+                <button id="filterBtn" class="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-emerald-700">ค้นหา</button>
             </div>
 
             <!-- Status Indicator Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="p-4 bg-slate-50 rounded-xl text-center">
                     <p class="text-xs text-gray-400">ผู้เข้ารับการตรวจ</p>
-                    <p class="text-2xl font-bold text-gray-700">125 คน</p>
+                    <p class="text-2xl font-bold text-gray-700" id="totalCount">-</p>
                 </div>
                 <div class="p-4 bg-green-50 rounded-xl text-center border border-green-100">
                     <p class="text-xs text-green-600">🟢 ปกติ</p>
-                    <p class="text-2xl font-bold text-green-700">85 คน (68%)</p>
+                    <p class="text-2xl font-bold text-green-700" id="normalCount">-</p>
                 </div>
                 <div class="p-4 bg-yellow-50 rounded-xl text-center border border-yellow-100">
                     <p class="text-xs text-yellow-600">🟡 เสี่ยง</p>
-                    <p class="text-2xl font-bold text-yellow-700">25 คน (20%)</p>
+                    <p class="text-2xl font-bold text-yellow-700" id="riskCount">-</p>
                 </div>
                 <div class="p-4 bg-red-50 rounded-xl text-center border border-red-100">
                     <p class="text-xs text-red-600">🔴 ผิดปกติ</p>
-                    <p class="text-2xl font-bold text-red-700">15 คน (12%)</p>
+                    <p class="text-2xl font-bold text-red-700" id="abnormalCount">-</p>
                 </div>
             </div>
 
@@ -83,14 +83,15 @@
     </main>
 
     <!-- Script วาด Donut Chart -->
+    <script src="data.js"></script>
     <script>
         const ctx = document.getElementById('healthDonutChart').getContext('2d');
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['ปกติ', 'เสี่ยง', 'ผิดปกติ'],
                 datasets: [{
-                    data: [85, 25, 15],
+                    data: [0, 0, 0],
                     backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
                     borderWidth: 0
                 }]
@@ -99,6 +100,27 @@
                 responsive: true,
                 plugins: { legend: { position: 'bottom' } }
             }
+        });
+
+        function percent(value, total) {
+            return total ? `${value} คน (${Math.round((value / total) * 100)}%)` : '0 คน (0%)';
+        }
+
+        async function loadReport() {
+            const from = document.getElementById('fromDate').value;
+            const to = document.getElementById('toDate').value;
+            const summary = await getHealthSummary({ from, to });
+            document.getElementById('totalCount').textContent = `${summary.total} คน`;
+            document.getElementById('normalCount').textContent = percent(summary.normal, summary.total);
+            document.getElementById('riskCount').textContent = percent(summary.risk, summary.total);
+            document.getElementById('abnormalCount').textContent = percent(summary.abnormal, summary.total);
+            chart.data.datasets[0].data = [summary.normal, summary.risk, summary.abnormal];
+            chart.update();
+        }
+
+        document.getElementById('filterBtn').addEventListener('click', loadReport);
+        loadReport().catch(() => {
+            document.getElementById('totalCount').textContent = 'โหลดไม่ได้';
         });
     </script>
 </body>

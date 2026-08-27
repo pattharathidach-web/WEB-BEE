@@ -1,40 +1,61 @@
 /* data.js
-   จำลองฐานข้อมูล "บันทึกสุขภาพ" ด้วย localStorage
-   (ของจริงควรเก็บใน database ฝั่ง server)
+   ตัวกลางข้อมูลสุขภาพ: หน้าเว็บเรียก API ฝั่ง server แทนการเก็บข้อมูลใน browser
 */
-const RECORDS_KEY = 'health_records';
 
-function seedRecordsIfEmpty() {
-  if (localStorage.getItem(RECORDS_KEY)) return;
-  const seed = [
-    { id: 'r1', fullname: 'นายสมชาย รักสุข', idcard: '1-2345-67890-12-3', date: '15/11/2566', weight: 63, height: 170, bmi: 21.8, bp: '115/75', sugar: 98, note: '' },
-    { id: 'r2', fullname: 'นายสมชาย รักสุข', idcard: '1-2345-67890-12-3', date: '10/02/2567', weight: 64, height: 170, bmi: 22.1, bp: '118/78', sugar: 105, note: '' },
-    { id: 'r3', fullname: 'นายสมชาย รักสุข', idcard: '1-2345-67890-12-3', date: '12/05/2567', weight: 65, height: 170, bmi: 22.5, bp: '120/80', sugar: 110, note: '' }
-  ];
-  localStorage.setItem(RECORDS_KEY, JSON.stringify(seed));
+function authHeader() {
+  const token = localStorage.getItem('csr_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function getRecords() {
-  seedRecordsIfEmpty();
-  try {
-    return JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
-  } catch (e) {
-    return [];
+async function apiJson(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeader(),
+      ...(options.headers || {}),
+    },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อระบบ');
   }
+  return data;
 }
 
-function addRecord(record) {
-  const records = getRecords();
-  record.id = 'r' + Date.now();
-  records.push(record);
-  localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
-  return record;
+function buildQuery(params) {
+  const query = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value) query.set(key, value);
+  });
+  const text = query.toString();
+  return text ? `?${text}` : '';
+}
+
+async function getRecords(params) {
+  const data = await apiJson(`/api/health-records${buildQuery(params)}`);
+  return data.records || [];
+}
+
+async function addRecord(record) {
+  const data = await apiJson('/api/health-records', {
+    method: 'POST',
+    body: JSON.stringify(record),
+  });
+  return data.record;
+}
+
+async function getHealthSummary(params) {
+  const data = await apiJson(`/api/reports/health-summary${buildQuery(params)}`);
+  return data.summary;
 }
 
 function calcBmi(weightKg, heightCm) {
-  const h = heightCm / 100;
-  if (!h) return null;
-  return Math.round((weightKg / (h * h)) * 10) / 10;
+  const weight = Number(weightKg);
+  const height = Number(heightCm);
+  if (!weight || !height) return null;
+  const meters = height / 100;
+  return Math.round((weight / (meters * meters)) * 10) / 10;
 }
 
 function bmiStatus(bmi) {
@@ -43,4 +64,15 @@ function bmiStatus(bmi) {
   if (bmi < 23) return { label: 'ปกติ', color: 'text-emerald-600' };
   if (bmi < 25) return { label: 'ท้วม', color: 'text-yellow-600' };
   return { label: 'อ้วน', color: 'text-red-600' };
+}
+
+function formatThaiDate(value) {
+  if (!value) return '-';
+  const [year, month, day] = String(value).split('-');
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+}
+
+function sortByDateAsc(records) {
+  return records.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }

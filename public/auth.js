@@ -3,6 +3,7 @@
    (ของจริงควรทำฝั่ง server ด้วย session/JWT + hash รหัสผ่าน)
 */
 const AUTH_KEY = 'csr_user';
+const TOKEN_KEY = 'csr_token';
 
 function getUser() {
   try {
@@ -16,8 +17,13 @@ function setUser(user) {
   localStorage.setItem(AUTH_KEY, JSON.stringify(user));
 }
 
+function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
 function clearUser() {
   localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 /**

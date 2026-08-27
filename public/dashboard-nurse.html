@@ -83,15 +83,19 @@
 
     <script src="data.js"></script>
     <script>
-        const currentUser = window.__user;
-        if (currentUser) {
+        (async function () {
+            const currentUser = window.__user;
+            if (!currentUser) return;
             paintUser(currentUser);
-            const records = getRecords();
-            document.getElementById('statTotal').textContent = records.length;
-            document.getElementById('statPatients').textContent = new Set(records.map(r => r.idcard)).size;
-            const latest = records[records.length - 1];
-            document.getElementById('statLatest').textContent = latest ? `${latest.fullname} (${latest.date})` : '-';
-        }
+            try {
+                const summary = await getHealthSummary();
+                document.getElementById('statTotal').textContent = summary.total;
+                document.getElementById('statPatients').textContent = summary.patients;
+                document.getElementById('statLatest').textContent = summary.latest ? `${summary.latest.fullname} (${formatThaiDate(summary.latest.date)})` : '-';
+            } catch (error) {
+                document.getElementById('statLatest').textContent = 'โหลดข้อมูลไม่ได้';
+            }
+        })();
     </script>
 </body>
 </html>

@@ -80,6 +80,13 @@
     <script src="data.js"></script>
     <script>
 
+        function cell(text, className) {
+            const td = document.createElement('td');
+            td.className = className;
+            td.textContent = text;
+            return td;
+        }
+
         function renderRows(records) {
             const body = document.getElementById('resultsBody');
             const empty = document.getElementById('emptyState');
@@ -91,34 +98,36 @@
             empty.classList.add('hidden');
             records
                 .slice()
-                .sort((a, b) => a.date.split('/').reverse().join('').localeCompare(b.date.split('/').reverse().join('')))
+                .sort((a, b) => String(a.date).localeCompare(String(b.date)))
                 .forEach(r => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition';
-                    tr.innerHTML = `
-                        <td class="px-4 py-4 text-gray-700">${r.fullname}</td>
-                        <td class="px-4 py-4 text-gray-700">${r.date}</td>
-                        <td class="px-4 py-4 text-gray-700">${r.weight}</td>
-                        <td class="px-4 py-4 text-emerald-600 font-medium">${r.bmi}</td>
-                        <td class="px-4 py-4 text-gray-700">${r.bp}</td>
-                        <td class="px-4 py-4 text-gray-700">${r.sugar}</td>`;
+                    tr.append(
+                        cell(r.fullname, 'px-4 py-4 text-gray-700'),
+                        cell(formatThaiDate(r.date), 'px-4 py-4 text-gray-700'),
+                        cell(r.weight, 'px-4 py-4 text-gray-700'),
+                        cell(r.bmi, 'px-4 py-4 text-emerald-600 font-medium'),
+                        cell(r.bp, 'px-4 py-4 text-gray-700'),
+                        cell(r.sugar, 'px-4 py-4 text-gray-700')
+                    );
                     body.appendChild(tr);
                 });
         }
 
-        function doSearch() {
+        async function doSearch() {
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
-            const all = getRecords();
-            const filtered = q
-                ? all.filter(r => r.fullname.toLowerCase().includes(q) || r.idcard.toLowerCase().includes(q))
-                : all;
             document.getElementById('resultTitle').textContent = q ? `ผลการค้นหา: "${q}"` : 'ประวัติการตรวจทั้งหมด';
-            renderRows(filtered);
+            try {
+                renderRows(await getRecords({ search: q }));
+            } catch (error) {
+                document.getElementById('emptyState').textContent = error.message;
+                renderRows([]);
+            }
         }
 
         document.getElementById('searchBtn').addEventListener('click', doSearch);
         document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-        renderRows(getRecords());
+        doSearch();
     </script>
 </body>
 </html>
