@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
+
+loadEnvFile(path.join(__dirname, '.env'));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +13,16 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_HEALTH_TABLE = process.env.SUPABASE_HEALTH_TABLE || 'health_records';
 const hasSupabase = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match || process.env[match[1]]) continue;
+    process.env[match[1]] = match[2].replace(/^["']|["']$/g, '');
+  }
+}
 
 const demoUsers = {
   nurse: {
