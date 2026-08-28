@@ -45,7 +45,7 @@
                     </div>
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">เลขบัตรประชาชน</label>
-                        <input type="text" id="fIdcard" placeholder="1-2345-67890-12-3" class="w-full px-3 py-2 border rounded-xl text-sm bg-slate-100 text-gray-500" required readonly>
+                        <input type="text" id="fIdcard" placeholder="กรอกเลขบัตรประชาชน" class="w-full px-3 py-2 border rounded-xl text-sm" required>
                     </div>
                 </div>
 
@@ -97,12 +97,9 @@
         const currentUser = window.__user;
         if (currentUser && currentUser.role === 'employee') {
             document.getElementById('fFullname').value = currentUser.fullname || '';
-            document.getElementById('fIdcard').value = currentUser.idcard || '';
         } else {
             document.getElementById('fFullname').removeAttribute('readonly');
-            document.getElementById('fIdcard').removeAttribute('readonly');
             document.getElementById('fFullname').classList.remove('bg-slate-100', 'text-gray-500');
-            document.getElementById('fIdcard').classList.remove('bg-slate-100', 'text-gray-500');
         }
         document.getElementById('fDate').valueAsDate = new Date();
 
@@ -132,7 +129,6 @@
                 this.reset();
                 if (currentUser && currentUser.role === 'employee') {
                     document.getElementById('fFullname').value = currentUser.fullname || '';
-                    document.getElementById('fIdcard').value = currentUser.idcard || '';
                 }
                 document.getElementById('fDate').valueAsDate = new Date();
             } catch (error) {

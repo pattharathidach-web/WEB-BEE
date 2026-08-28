@@ -419,7 +419,7 @@ app.get('/api/health-records', requireApiAuth(), async (req, res) => {
     const filters = {
       search: req.query.search,
       fullname: req.user.role === 'employee' ? req.user.fullname : req.query.fullname,
-      idcard: req.user.role === 'employee' ? req.user.idcard : req.query.idcard,
+      idcard: req.query.idcard,
       from: toIsoDate(req.query.from),
       to: toIsoDate(req.query.to),
     };
@@ -433,7 +433,6 @@ app.get('/api/health-records', requireApiAuth(), async (req, res) => {
 app.post('/api/health-records', requireApiAuth('employee'), async (req, res) => {
   if (req.user.role === 'employee') {
     req.body.fullname = req.user.fullname;
-    req.body.idcard = req.user.idcard;
   }
   const { record, errors } = validateRecord(req.body);
   if (errors.length) return res.status(422).json({ success: false, message: errors[0], errors });
