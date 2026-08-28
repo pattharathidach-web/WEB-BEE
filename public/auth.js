@@ -50,6 +50,7 @@ function requireAuth(requiredRole) {
 function paintUser(user) {
   document.querySelectorAll('[data-user-fullname]').forEach(el => el.textContent = user.fullname);
   document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.roleLabel);
+  renderSidebar(user);
 }
 
 function logout() {
@@ -70,6 +71,7 @@ function guardPage(requiredRole) {
   }
   if (user.role === 'admin') {
     document.documentElement.classList.add('ready');
+    scheduleSidebar(user);
     return user;
   }
   if (requiredRole && user.role !== requiredRole) {
@@ -78,5 +80,66 @@ function guardPage(requiredRole) {
   }
   // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผลแบบ fade นุ่มๆ
   document.documentElement.classList.add('ready');
+  scheduleSidebar(user);
   return user;
+}
+
+function scheduleSidebar(user) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => renderSidebar(user), { once: true });
+  } else {
+    renderSidebar(user);
+  }
+}
+
+function sidebarMenus(user) {
+  if (user.role === 'admin') {
+    return [
+      { href: 'dashboard-admin.html', icon: '🛠️', label: 'จัดการผู้ใช้' },
+      { href: 'dashboard-nurse.html', icon: '📊', label: 'ภาพรวมพยาบาล' },
+      { href: 'history.html', icon: '🔍', label: 'ข้อมูลสุขภาพทั้งหมด' },
+      { href: 'record-health.html', icon: '📝', label: 'บันทึกข้อมูลสุขภาพ' },
+      { href: 'report.html', icon: '📈', label: 'รายงาน' },
+    ];
+  }
+  if (user.role === 'nurse') {
+    return [
+      { href: 'dashboard-nurse.html', icon: '🏠', label: 'หน้าหลัก' },
+      { href: 'history.html', icon: '🔍', label: 'ค้นหาประวัติผู้ป่วย' },
+      { href: 'report.html', icon: '📊', label: 'รายงานการตรวจสุขภาพ' },
+    ];
+  }
+  return [
+    { href: 'dashboard-emp.html', icon: '🏠', label: 'หน้าหลัก' },
+    { href: 'record-health.html', icon: '📝', label: 'บันทึกข้อมูลสุขภาพ' },
+    { href: 'history-emp.html', icon: '📊', label: 'ข้อมูลสุขภาพย้อนหลัง' },
+    { href: 'csr-schedule.html', icon: '📅', label: 'ตารางกิจกรรม CSR' },
+  ];
+}
+
+function renderSidebar(user) {
+  const aside = document.querySelector('aside');
+  if (!aside || !user) return;
+
+  const current = (window.location.pathname.split('/').pop() || 'login.html').replace(/\.html$/, '');
+  const links = sidebarMenus(user).map(item => {
+    const target = item.href.replace(/\.html$/, '');
+    const active = current === target;
+    const className = active
+      ? 'flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm transition'
+      : 'flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition';
+    return `<a href="${item.href}"${active ? ' aria-current="page"' : ''} class="${className}"><span class="w-5">${item.icon}</span> ${item.label}</a>`;
+  }).join('');
+
+  aside.className = 'w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4';
+  aside.innerHTML = `
+    <div>
+      <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl">
+        <span class="text-xl">💚</span>
+        <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
+      </div>
+      <nav class="space-y-1">${links}</nav>
+    </div>
+    <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition"><span>🚪</span> ออกจากระบบ</a>
+  `;
 }
