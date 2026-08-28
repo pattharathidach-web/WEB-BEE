@@ -15,7 +15,7 @@
         (function () {
             const u = getUser();
             if (u) {
-                window.location.replace(u.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
+                window.location.replace(u.role === 'admin' ? 'dashboard-admin.html' : u.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
             } else {
                 document.documentElement.classList.add('ready');
             }

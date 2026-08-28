@@ -37,9 +37,10 @@ function requireAuth(requiredRole) {
     window.location.href = 'login.html';
     return null;
   }
+  if (user.role === 'admin') return user;
   if (requiredRole && user.role !== requiredRole) {
     // ล็อกอินอยู่ แต่ role ไม่ตรงกับหน้านี้ -> เด้งกลับ dashboard ของตัวเอง
-    window.location.href = user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
+    window.location.href = user.role === 'admin' ? 'dashboard-admin.html' : user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
     return null;
   }
   return user;
@@ -67,8 +68,12 @@ function guardPage(requiredRole) {
     window.location.replace('login.html');
     return null;
   }
+  if (user.role === 'admin') {
+    document.documentElement.classList.add('ready');
+    return user;
+  }
   if (requiredRole && user.role !== requiredRole) {
-    window.location.replace(user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
+    window.location.replace(user.role === 'admin' ? 'dashboard-admin.html' : user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
     return null;
   }
   // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผลแบบ fade นุ่มๆ

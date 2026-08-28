@@ -12,6 +12,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_HEALTH_TABLE = process.env.SUPABASE_HEALTH_TABLE || 'health_records';
+const SUPABASE_USERS_TABLE = process.env.SUPABASE_USERS_TABLE || 'app_users';
 const hasSupabase = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
 
 function loadEnvFile(filePath) {
@@ -25,13 +26,24 @@ function loadEnvFile(filePath) {
 }
 
 const demoUsers = {
+  admin: {
+    username: 'admin',
+    password: process.env.DEMO_ADMIN_PASSWORD || '1234',
+    role: 'admin',
+    roleLabel: 'แอดมิน',
+    fullname: 'ผู้ดูแลระบบ',
+    idcard: '',
+  },
   nurse: {
+    username: 'nurse',
     password: process.env.DEMO_NURSE_PASSWORD || '1234',
     role: 'nurse',
     roleLabel: 'พยาบาล',
     fullname: 'พยาบาลสมหญิง ใจดี',
+    idcard: '',
   },
   employee: {
+    username: 'employee',
     password: process.env.DEMO_EMPLOYEE_PASSWORD || '1234',
     role: 'employee',
     roleLabel: 'พนักงาน',
@@ -39,6 +51,8 @@ const demoUsers = {
     idcard: '1-2345-67890-12-3',
   },
 };
+
+let memoryUsers = Object.values(demoUsers).map((user) => ({ ...user }));
 
 const demoRecords = [
   {
@@ -184,7 +198,7 @@ function requireApiAuth(role) {
   return (req, res, next) => {
     const user = readToken(req);
     if (!user) return res.status(401).json({ success: false, message: 'กรุณาเข้าสู่ระบบใหม่' });
-    if (role && user.role !== role) return res.status(403).json({ success: false, message: 'ไม่มีสิทธิ์ใช้งานส่วนนี้' });
+    if (role && user.role !== 'admin' && user.role !== role) return res.status(403).json({ success: false, message: 'ไม่มีสิทธิ์ใช้งานส่วนนี้' });
     req.user = user;
     next();
   };
@@ -268,6 +282,104 @@ function buildSummary(records) {
   };
 }
 
+function roleLabel(role) {
+  return { admin: 'แอดมิน', nurse: 'พยาบาล', employee: 'พนักงาน' }[role] || role;
+}
+
+function publicUser(user) {
+  return {
+    username: user.username,
+    role: user.role,
+    roleLabel: user.roleLabel || roleLabel(user.role),
+    fullname: user.fullname,
+    idcard: user.idcard || '',
+  };
+}
+
+function normalizeUser(row) {
+  return {
+    username: cleanText(row.username).toLowerCase(),
+    password: String(row.password || ''),
+    role: cleanText(row.role) || 'employee',
+    roleLabel: row.roleLabel || row.role_label || roleLabel(row.role),
+    fullname: cleanText(row.fullname),
+    idcard: cleanText(row.idcard),
+  };
+}
+
+function validateUser(payload, isUpdate = false) {
+  const user = normalizeUser(payload);
+  const errors = [];
+  if (!/^[a-z0-9._-]{3,30}$/.test(user.username)) errors.push('Username ต้องเป็นอังกฤษ/ตัวเลข 3-30 ตัว');
+  if (!isUpdate && user.password.length < 4) errors.push('รหัสผ่านอย่างน้อย 4 ตัว');
+  if (!['admin', 'nurse', 'employee'].includes(user.role)) errors.push('ยศต้องเป็น admin, nurse หรือ employee');
+  if (user.fullname.length < 2) errors.push('กรุณากรอกชื่อ-นามสกุล');
+  if (user.role === 'employee' && user.idcard.length < 10) errors.push('พนักงานต้องมีเลขบัตรประชาชน');
+  user.roleLabel = roleLabel(user.role);
+  return { user, errors };
+}
+
+async function listUsers() {
+  if (!hasSupabase) return memoryUsers.map(publicUser).sort((a, b) => a.username.localeCompare(b.username));
+  try {
+    const rows = await supabaseFetch(`${SUPABASE_USERS_TABLE}?select=*&order=username.asc`);
+    return rows.map(normalizeUser).map(publicUser);
+  } catch {
+    return memoryUsers.map(publicUser).sort((a, b) => a.username.localeCompare(b.username));
+  }
+}
+
+async function findUser(username) {
+  const key = cleanText(username).toLowerCase();
+  if (!hasSupabase) return memoryUsers.find((user) => user.username === key) || null;
+  try {
+    const rows = await supabaseFetch(`${SUPABASE_USERS_TABLE}?select=*&username=eq.${encodeURIComponent(key)}&limit=1`);
+    return rows[0] ? normalizeUser(rows[0]) : null;
+  } catch {
+    return memoryUsers.find((user) => user.username === key) || null;
+  }
+}
+
+async function saveUser(payload, isUpdate = false) {
+  const { user, errors } = validateUser(payload, isUpdate);
+  if (errors.length) return { errors };
+
+  if (!hasSupabase) {
+    const index = memoryUsers.findIndex((item) => item.username === user.username);
+    if (index >= 0) memoryUsers[index] = { ...memoryUsers[index], ...user, password: user.password || memoryUsers[index].password };
+    else memoryUsers.push(user);
+    return { user: publicUser(user) };
+  }
+
+  const existing = await findUser(user.username);
+  const saved = {
+    username: user.username,
+    password: user.password || existing?.password,
+    role: user.role,
+    role_label: user.roleLabel,
+    fullname: user.fullname,
+    idcard: user.idcard,
+    updated_at: new Date().toISOString(),
+  };
+  const rows = await supabaseFetch(SUPABASE_USERS_TABLE, {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates,return=representation',
+    body: JSON.stringify(saved),
+  });
+  return { user: publicUser(normalizeUser(rows[0])) };
+}
+
+async function removeUser(username) {
+  const key = cleanText(username).toLowerCase();
+  if (key === 'admin') return false;
+  if (!hasSupabase) {
+    memoryUsers = memoryUsers.filter((user) => user.username !== key);
+    return true;
+  }
+  await supabaseFetch(`${SUPABASE_USERS_TABLE}?username=eq.${encodeURIComponent(key)}`, { method: 'DELETE' });
+  return true;
+}
+
 app.get('/', page('login.html'));
 app.get('/logout', page('logout.html'));
 app.get('/dashboard-nurse', page('dashboard-nurse.html'));
@@ -275,6 +387,7 @@ app.get('/record-health', page('record-health.html'));
 app.get('/history', page('history.html'));
 app.get('/report', page('report.html'));
 app.get('/dashboard-emp', page('dashboard-emp.html'));
+app.get('/dashboard-admin', page('dashboard-admin.html'));
 app.get('/record-health-emp', page('record-health.html'));
 app.get('/history-emp', page('history-emp.html'));
 app.get('/csr-schedule', page('csr-schedule.html'));
@@ -283,17 +396,18 @@ app.get('/news', (_req, res) => res.send('<h1 style="text-align:center; margin-t
 app.get('/profile', (_req, res) => res.send('<h1 style="text-align:center; margin-top:50px;">หน้าโปรไฟล์ส่วนตัว (กำลังพัฒนา)</h1><a href="/dashboard-emp">กลับหน้าหลัก</a>'));
 app.get('/health-guide', (_req, res) => res.send('<h1 style="text-align:center; margin-top:50px;">หน้าคู่มือสุขภาพ (กำลังพัฒนา)</h1><a href="/dashboard-emp">กลับหน้าหลัก</a>'));
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const username = cleanText(req.body.username).toLowerCase();
   const password = String(req.body.password || '');
-  const match = demoUsers[username];
+  const match = await findUser(username);
 
   if (!match || match.password !== password) {
     return res.status(400).json({ success: false, message: 'Username หรือ Password ไม่ถูกต้อง' });
   }
 
-  const user = { username, role: match.role, roleLabel: match.roleLabel, fullname: match.fullname, idcard: match.idcard || null };
-  res.json({ success: true, user, token: createToken(user), redirect: match.role === 'nurse' ? '/dashboard-nurse' : '/dashboard-emp' });
+  const user = publicUser(match);
+  const redirect = match.role === 'admin' ? '/dashboard-admin' : match.role === 'nurse' ? '/dashboard-nurse' : '/dashboard-emp';
+  res.json({ success: true, user, token: createToken(user), redirect });
 });
 
 app.get('/api/me', requireApiAuth(), (req, res) => {
@@ -317,8 +431,10 @@ app.get('/api/health-records', requireApiAuth(), async (req, res) => {
 });
 
 app.post('/api/health-records', requireApiAuth('employee'), async (req, res) => {
-  req.body.fullname = req.user.fullname;
-  req.body.idcard = req.user.idcard;
+  if (req.user.role === 'employee') {
+    req.body.fullname = req.user.fullname;
+    req.body.idcard = req.user.idcard;
+  }
   const { record, errors } = validateRecord(req.body);
   if (errors.length) return res.status(422).json({ success: false, message: errors[0], errors });
 
@@ -337,6 +453,36 @@ app.get('/api/reports/health-summary', requireApiAuth('nurse'), async (req, res)
   } catch (error) {
     res.status(500).json({ success: false, message: 'ไม่สามารถโหลดรายงานได้' });
   }
+});
+
+app.get('/api/users', requireApiAuth('admin'), async (_req, res) => {
+  res.json({ success: true, users: await listUsers() });
+});
+
+app.post('/api/users', requireApiAuth('admin'), async (req, res) => {
+  try {
+    const result = await saveUser(req.body);
+    if (result.errors) return res.status(422).json({ success: false, message: result.errors[0], errors: result.errors });
+    res.status(201).json({ success: true, user: result.user });
+  } catch {
+    res.status(500).json({ success: false, message: 'ไม่สามารถบันทึกผู้ใช้ได้' });
+  }
+});
+
+app.put('/api/users/:username', requireApiAuth('admin'), async (req, res) => {
+  try {
+    const result = await saveUser({ ...req.body, username: req.params.username }, true);
+    if (result.errors) return res.status(422).json({ success: false, message: result.errors[0], errors: result.errors });
+    res.json({ success: true, user: result.user });
+  } catch {
+    res.status(500).json({ success: false, message: 'ไม่สามารถแก้ไขผู้ใช้ได้' });
+  }
+});
+
+app.delete('/api/users/:username', requireApiAuth('admin'), async (req, res) => {
+  const ok = await removeUser(req.params.username);
+  if (!ok) return res.status(422).json({ success: false, message: 'ไม่สามารถลบ admin หลักได้' });
+  res.json({ success: true });
 });
 
 app.use((_req, res) => {

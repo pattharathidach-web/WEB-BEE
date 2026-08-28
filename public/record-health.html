@@ -95,9 +95,14 @@
     <script src="data.js"></script>
     <script>
         const currentUser = window.__user;
-        if (currentUser) {
+        if (currentUser && currentUser.role === 'employee') {
             document.getElementById('fFullname').value = currentUser.fullname || '';
             document.getElementById('fIdcard').value = currentUser.idcard || '';
+        } else {
+            document.getElementById('fFullname').removeAttribute('readonly');
+            document.getElementById('fIdcard').removeAttribute('readonly');
+            document.getElementById('fFullname').classList.remove('bg-slate-100', 'text-gray-500');
+            document.getElementById('fIdcard').classList.remove('bg-slate-100', 'text-gray-500');
         }
         document.getElementById('fDate').valueAsDate = new Date();
 
@@ -113,6 +118,8 @@
 
             try {
                 await addRecord({
+                    fullname: document.getElementById('fFullname').value.trim(),
+                    idcard: document.getElementById('fIdcard').value.trim(),
                     date: document.getElementById('fDate').value,
                     weight, height, bmi,
                     bp: document.getElementById('fBp').value.trim(),
@@ -123,7 +130,7 @@
                 msg.textContent = `บันทึกข้อมูลสำเร็จ (BMI คำนวณอัตโนมัติ = ${bmi})`;
                 msg.className = 'anim-slide-down mb-4 text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100';
                 this.reset();
-                if (currentUser) {
+                if (currentUser && currentUser.role === 'employee') {
                     document.getElementById('fFullname').value = currentUser.fullname || '';
                     document.getElementById('fIdcard').value = currentUser.idcard || '';
                 }

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผู้ดูแลระบบ - ตลาดสดใส ใส่ใจน้ำตาล</title>
+    <link rel="stylesheet" href="tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Sarabun', sans-serif; }</style>
+    <link rel="stylesheet" href="style.css">
+    <noscript><style>html{visibility:visible!important;opacity:1!important}</style></noscript>
+    <script src="auth.js"></script>
+    <script>window.__user = guardPage('admin');</script>
+</head>
+<body class="bg-green-50/50 min-h-screen flex">
+    <aside class="w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4">
+        <div>
+            <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl">
+                <span class="text-xl">💚</span>
+                <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
+            </div>
+            <nav class="space-y-1">
+                <a aria-current="page" href="dashboard-admin.html" class="flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm shadow-sm">🛠️ จัดการผู้ใช้</a>
+                <a href="dashboard-nurse.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📊 ภาพรวมพยาบาล</a>
+                <a href="history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">🔍 ข้อมูลสุขภาพทั้งหมด</a>
+                <a href="record-health.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📝 บันทึกข้อมูลสุขภาพ</a>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-sm transition">📈 รายงาน</a>
+            </nav>
+        </div>
+        <a href="#" onclick="logout(); return false;" class="flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 text-red-300 rounded-xl text-sm transition">🚪 ออกจากระบบ</a>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm border border-emerald-50">
+            <div>
+                <p class="text-sm text-gray-500">ผู้ดูแลระบบ</p>
+                <h1 class="text-2xl font-bold text-emerald-800" data-user-fullname>Admin</h1>
+            </div>
+            <p class="text-sm text-gray-500" data-user-role>แอดมิน</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-50">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">เพิ่ม / แก้ไขผู้ใช้</h2>
+                <p id="formMsg" class="hidden mb-4 text-sm px-4 py-2 rounded-xl"></p>
+                <form id="userForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Username</label>
+                        <input id="username" class="w-full px-4 py-2 border rounded-xl text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">รหัสผ่าน</label>
+                        <input id="password" type="password" placeholder="เว้นว่างเมื่อแก้ไขโดยไม่เปลี่ยนรหัส" class="w-full px-4 py-2 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">ชื่อ-นามสกุล</label>
+                        <input id="fullname" class="w-full px-4 py-2 border rounded-xl text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">เลขบัตรประชาชน</label>
+                        <input id="idcard" class="w-full px-4 py-2 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">ยศ</label>
+                        <select id="role" class="w-full px-4 py-2 border rounded-xl text-sm">
+                            <option value="employee">พนักงาน</option>
+                            <option value="nurse">พยาบาล</option>
+                            <option value="admin">แอดมิน</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm">บันทึก</button>
+                        <button type="button" id="resetBtn" class="px-4 py-2 border rounded-xl text-sm text-gray-600">ล้าง</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-emerald-50">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">รายชื่อผู้ใช้</h2>
+                    <button id="reloadBtn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm text-gray-700">โหลดใหม่</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-500 bg-emerald-50 border-y border-emerald-100">
+                            <tr>
+                                <th class="px-4 py-3 font-medium">Username</th>
+                                <th class="px-4 py-3 font-medium">ชื่อ</th>
+                                <th class="px-4 py-3 font-medium">เลขบัตร</th>
+                                <th class="px-4 py-3 font-medium">ยศ</th>
+                                <th class="px-4 py-3 font-medium text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                    <p id="emptyState" class="text-center text-sm text-gray-400 py-8 hidden">ยังไม่มีข้อมูลผู้ใช้</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="data.js"></script>
+    <script>
+        const currentUser = window.__user;
+        if (currentUser) paintUser(currentUser);
+
+        const form = document.getElementById('userForm');
+        const msg = document.getElementById('formMsg');
+
+        function showMsg(text, ok = true) {
+            msg.textContent = text;
+            msg.className = `mb-4 text-sm px-4 py-2 rounded-xl ${ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`;
+        }
+
+        function fillForm(user) {
+            document.getElementById('username').value = user.username;
+            document.getElementById('password').value = '';
+            document.getElementById('fullname').value = user.fullname;
+            document.getElementById('idcard').value = user.idcard || '';
+            document.getElementById('role').value = user.role;
+        }
+
+        function readForm() {
+            return {
+                username: document.getElementById('username').value.trim().toLowerCase(),
+                password: document.getElementById('password').value,
+                fullname: document.getElementById('fullname').value.trim(),
+                idcard: document.getElementById('idcard').value.trim(),
+                role: document.getElementById('role').value,
+            };
+        }
+
+        async function loadUsers() {
+            const body = document.getElementById('usersBody');
+            const empty = document.getElementById('emptyState');
+            body.innerHTML = '';
+            try {
+                const data = await apiJson('/api/users');
+                empty.classList.toggle('hidden', data.users.length > 0);
+                data.users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50';
+                    [user.username, user.fullname, user.idcard || '-', user.roleLabel].forEach(value => {
+                        const td = document.createElement('td');
+                        td.className = 'px-4 py-4 text-gray-700';
+                        td.textContent = value;
+                        tr.appendChild(td);
+                    });
+                    const action = document.createElement('td');
+                    action.className = 'px-4 py-4 text-right space-x-2';
+                    const edit = document.createElement('button');
+                    edit.className = 'px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs';
+                    edit.textContent = 'แก้ไข';
+                    edit.addEventListener('click', () => fillForm(user));
+                    const del = document.createElement('button');
+                    del.className = 'px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs';
+                    del.textContent = 'ลบ';
+                    del.disabled = user.username === 'admin';
+                    del.addEventListener('click', async () => {
+                        if (!confirm(`ลบผู้ใช้ ${user.username}?`)) return;
+                        await apiJson(`/api/users/${encodeURIComponent(user.username)}`, { method: 'DELETE' });
+                        await loadUsers();
+                    });
+                    action.append(edit, del);
+                    tr.appendChild(action);
+                    body.appendChild(tr);
+                });
+            } catch (error) {
+                empty.textContent = error.message;
+                empty.classList.remove('hidden');
+            }
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            try {
+                await apiJson('/api/users', { method: 'POST', body: JSON.stringify(readForm()) });
+                showMsg('บันทึกผู้ใช้สำเร็จ');
+                form.reset();
+                await loadUsers();
+            } catch (error) {
+                showMsg(error.message, false);
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => form.reset());
+        document.getElementById('reloadBtn').addEventListener('click', loadUsers);
+        loadUsers();
+    </script>
+</body>
+</html>
