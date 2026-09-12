@@ -134,9 +134,14 @@ function renderSidebar(user) {
   aside.className = 'w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4';
   aside.innerHTML = `
     <div>
-      <div class="flex items-center gap-3 p-2 mb-6 bg-white/10 rounded-xl">
-        <span class="text-xl">💚</span>
-        <span class="font-bold text-white text-sm">ตลาดสดใส ใส่ใจน้ำตาล</span>
+      <div class="flex justify-center p-3 mb-6 bg-white/10 rounded-xl">
+        <img
+          src="assets/bee-logo.webp"
+          alt="ตลาดสดใส ใส่ใจน้ำตาล"
+          class="w-28 h-28 object-contain"
+          width="112"
+          height="112"
+        >
       </div>
       <nav class="space-y-1">${links}</nav>
     </div>
