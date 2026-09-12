@@ -179,31 +179,43 @@ function renderHelpMenu(user) {
 
   const widget = document.createElement('div');
   widget.id = 'siteHelpWidget';
-  widget.style.cssText = 'position:fixed;top:16px;right:18px;z-index:10000;font-family:Sarabun,sans-serif;';
+  widget.style.cssText = 'position:fixed;right:24px;bottom:24px;z-index:10000;font-family:Sarabun,sans-serif;';
   widget.innerHTML = `
     <button id="siteHelpButton" type="button" aria-haspopup="true" aria-expanded="false"
-      style="display:flex;align-items:center;gap:7px;border:1px solid #a7f3d0;background:#fff;color:#065f46;padding:9px 13px;border-radius:14px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(15,23,42,.12);cursor:pointer;">
-      <span style="font-size:17px;line-height:1;">❔</span>
+      style="display:flex;align-items:center;gap:10px;border:1px solid #a7f3d0;background:#fff;color:#065f46;padding:14px 18px;border-radius:18px;font-size:16px;font-weight:700;box-shadow:0 12px 32px rgba(15,23,42,.16);cursor:pointer;min-width:150px;justify-content:center;">
+      <span style="font-size:22px;line-height:1;">❔</span>
       <span>ช่วยเหลือ</span>
-      <span style="font-size:10px;color:#64748b;">▼</span>
+      <span style="font-size:12px;color:#64748b;">▲</span>
     </button>
 
     <div id="siteHelpDropdown" hidden
-      style="position:absolute;right:0;top:calc(100% + 8px);width:255px;background:#fff;border:1px solid #d1fae5;border-radius:16px;padding:7px;box-shadow:0 18px 45px rgba(15,23,42,.18);">
+      style="position:absolute;right:0;bottom:calc(100% + 10px);width:320px;background:#fff;border:1px solid #d1fae5;border-radius:18px;padding:9px;box-shadow:0 20px 50px rgba(15,23,42,.20);">
       <button type="button" data-help-action="guide"
-        style="width:100%;display:flex;gap:11px;align-items:flex-start;text-align:left;border:0;background:#fff;padding:12px;border-radius:12px;cursor:pointer;color:#1f2937;">
-        <span style="font-size:20px;">📘</span>
-        <span><strong style="display:block;font-size:13px;margin-bottom:2px;">วิธีใช้งานเว็บไซต์</strong><small style="color:#64748b;font-size:11px;">ดูขั้นตอนการใช้งานตามสิทธิ์ของคุณ</small></span>
+        style="width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;border:0;background:#fff;padding:15px;border-radius:14px;cursor:pointer;color:#1f2937;">
+        <span style="font-size:24px;">📘</span>
+        <span><strong style="display:block;font-size:15px;margin-bottom:3px;">วิธีใช้งานเว็บไซต์</strong><small style="color:#64748b;font-size:12px;">ดูขั้นตอนการใช้งานตามสิทธิ์ของคุณ</small></span>
       </button>
       <div style="height:1px;background:#f1f5f9;margin:2px 6px;"></div>
       <button type="button" data-help-action="contact"
-        style="width:100%;display:flex;gap:11px;align-items:flex-start;text-align:left;border:0;background:#fff;padding:12px;border-radius:12px;cursor:pointer;color:#1f2937;">
-        <span style="font-size:20px;">🛠️</span>
-        <span><strong style="display:block;font-size:13px;margin-bottom:2px;">พบปัญหา / ติดต่อ Admin</strong><small style="color:#64748b;font-size:11px;">ติดต่อผู้ดูแลระบบได้ทันที</small></span>
+        style="width:100%;display:flex;gap:14px;align-items:flex-start;text-align:left;border:0;background:#fff;padding:15px;border-radius:14px;cursor:pointer;color:#1f2937;">
+        <span style="font-size:24px;">🛠️</span>
+        <span><strong style="display:block;font-size:15px;margin-bottom:3px;">พบปัญหา / ติดต่อ Admin</strong><small style="color:#64748b;font-size:12px;">ติดต่อผู้ดูแลระบบได้ทันที</small></span>
       </button>
     </div>
   `;
   document.body.appendChild(widget);
+
+  if (!document.getElementById('siteHelpResponsiveStyle')) {
+    const helpStyle = document.createElement('style');
+    helpStyle.id = 'siteHelpResponsiveStyle';
+    helpStyle.textContent = `
+      @media (max-width: 640px) {
+        #siteHelpWidget { right: 14px !important; bottom: 14px !important; }
+        #siteHelpDropdown { width: min(320px, calc(100vw - 28px)) !important; }
+      }
+    `;
+    document.head.appendChild(helpStyle);
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'siteHelpModal';
