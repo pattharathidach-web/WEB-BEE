@@ -39,14 +39,12 @@ function requireAuth(requiredRole) {
   }
   if (user.role === 'admin') return user;
   if (requiredRole && user.role !== requiredRole) {
-    // ล็อกอินอยู่ แต่ role ไม่ตรงกับหน้านี้ -> เด้งกลับ dashboard ของตัวเอง
     window.location.href = user.role === 'admin' ? 'dashboard-admin.html' : user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html';
     return null;
   }
   return user;
 }
 
-/** เติมชื่อผู้ใช้ปัจจุบันลงใน element ที่มี data-user-fullname / data-user-role */
 function paintUser(user) {
   document.querySelectorAll('[data-user-fullname]').forEach(el => el.textContent = user.fullname);
   document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.roleLabel);
@@ -58,11 +56,6 @@ function logout() {
   window.location.href = 'logout.html';
 }
 
-/**
- * เรียกใน <head> ก่อน body จะ render เพื่อกัน "เนื้อหาแวบ" ก่อนโดน redirect
- * ทำงานแบบ synchronous เพราะ localStorage เป็น sync API
- * ต้องเรียกคู่กับ <html style="visibility:hidden"> แล้วค่อยเปิดทีหลังใน early-guard
- */
 function guardPage(requiredRole) {
   const user = getUser();
   if (!user) {
@@ -78,7 +71,6 @@ function guardPage(requiredRole) {
     window.location.replace(user.role === 'admin' ? 'dashboard-admin.html' : user.role === 'nurse' ? 'dashboard-nurse.html' : 'dashboard-emp.html');
     return null;
   }
-  // ผ่านการตรวจสอบแล้ว -> เปิดให้ page แสดงผลแบบ fade นุ่มๆ
   document.documentElement.classList.add('ready');
   scheduleSidebar(user);
   return user;
@@ -134,18 +126,14 @@ function renderSidebar(user) {
   aside.className = 'w-64 bg-emerald-800 text-emerald-50 flex flex-col justify-between p-4';
   aside.innerHTML = `
     <div>
-      <div class="flex items-center gap-3 p-3 mb-6 bg-white rounded-xl">
+      <div class="flex justify-center p-3 mb-6 bg-white/10 rounded-xl">
         <img
           src="assets/bee-logo.webp"
           alt="ตลาดสดใส ใส่ใจน้ำตาล"
-          style="width:84px;height:84px;object-fit:contain;"
-          width="84"
-          height="84"
+          class="w-28 h-28 object-contain"
+          width="112"
+          height="112"
         >
-        <div>
-          <div class="text-emerald-800 font-bold text-lg">BEE</div>
-          <div class="text-gray-500 text-xs">CSR</div>
-        </div>
       </div>
       <nav class="space-y-1">${links}</nav>
     </div>
